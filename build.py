@@ -9,6 +9,7 @@ import csv
 import hashlib
 import html
 import math
+import re
 import shutil
 import statistics as st
 from pathlib import Path
@@ -395,6 +396,40 @@ def house_money_chart(house):
 
 # ---------------------------------------------------------------- page
 
+LINK_ICON = ('<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="currentColor" '
+             'stroke-width="1.6" stroke-linecap="round" d="M6.5 9.5l3-3M7 4.5l1.2-1.2a2.8 2.8 0 014 4L11 8.5M9 11.5l-1.2 1.2a2.8 2.8 0 01-4-4L5 7.5"/></svg>')
+
+
+def slug(text):
+    t = re.sub(r"<[^>]+>", "", text).lower()
+    return re.sub(r"[^a-z0-9]+", "-", t).strip("-")[:60]
+
+
+def heading_anchors(page):
+    """Give every h2/h3 in the article an id and a small copy-link button."""
+    seen = set(re.findall(r'id="([^"]+)"', page))
+
+    def fix(m):
+        level, attrs, inner = m.group(1), m.group(2) or "", m.group(3)
+        found = re.search(r'id="([^"]+)"', attrs)
+        if found:
+            hid = found.group(1)
+        else:
+            hid = base = slug(inner)
+            n = 2
+            while hid in seen:
+                hid = f"{base}-{n}"
+                n += 1
+            seen.add(hid)
+            attrs = f' id="{hid}"' + attrs
+        btn = (f'<button class="anchor" type="button" data-anchor="{hid}" '
+               f'aria-label="Copy link to this section" title="Copy link to this section">{LINK_ICON}</button>')
+        return f"<h{level}{attrs}>{inner}{btn}</h{level}>"
+
+    head, body = page.split("<main>", 1)
+    body = re.sub(r"<h([23])((?:\s[^>]*)?)>(.*?)</h\1>", fix, body, flags=re.S)
+    return head + "<main>" + body
+
 def table(head, rows):
     th = "".join(f"<th>{esc(h)}</th>" for h in head)
     tr = "".join("<tr>" + "".join(f"<td>{esc(c)}</td>" for c in r) + "</tr>" for r in rows)
@@ -548,6 +583,7 @@ def main():
     for k, v in subs.items():
         page = page.replace("{{" + k + "}}", v)
     assert "{{" not in page, page[page.index("{{"):page.index("{{") + 40]
+    page = heading_anchors(page)
     (SITE / "index.html").write_text(page, encoding="utf-8")
     (SITE / ".nojekyll").write_text("")
     print("wrote", SITE / "index.html")
