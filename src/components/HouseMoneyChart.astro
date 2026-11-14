@@ -32,7 +32,7 @@ const names: Record<string, [string, number, number, 'start' | 'middle']> = {
         const nm = names[r.code];
         return <>
           <Mark faction={r.faction} x={x(r.perVote)} y={yy} r={4} k={r.code}
-            tip={`${r.code}: ${r.dem} (${FACTION[r.faction].label.toLowerCase()}), ${usd(r.perVote)} per vote${r.redToBlue ? `, Red to Blue ${r.rtbDate}` : ''}; ${r.won ? 'won' : 'lost'}`} />
+            tip={`${r.code}: ${r.dem} (${FACTION[r.faction].label.toLowerCase()}), ${usd(r.perVote)} per vote${r.redToBlue ? `, Red to Blue ${r.rtbDate}` : ''}; ${r.result}`} />
           {nm && <text x={x(r.perVote) + nm[1]} y={yy + nm[2]} class="point-label" text-anchor={nm[3]}>{nm[0]}</text>}
         </>;
       })}

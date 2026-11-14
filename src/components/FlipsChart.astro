@@ -28,6 +28,6 @@ const x = scaleLinear().domain([0, 40]).range([40, W - 24]);
   <XAxis x={x} y0={top} y1={base} step={5} format={(v) => (v ? `+${v}` : '0')} label="Democratic winning margin in flipped seats (points)" />
   {pts.map(({ s, b, k }) => (
     <Mark faction={s.faction} x={x(b + 0.5)} y={base - cell / 2 - k * cell - 1} r={4.4} k={s.code}
-      tip={`${s.code}: ${s.dem} won by ${s.margin.toFixed(1)} (${FACTION[s.faction].label.toLowerCase()}); 2024 presidential ${signed(s.pres24)}`} />
+      tip={`${s.code}: ${s.dem} ${s.winner ? 'won' : 'leads, uncalled,'} by ${s.margin.toFixed(1)} (${FACTION[s.faction].label.toLowerCase()}); 2024 presidential ${signed(s.pres24)}`} />
   ))}
 </svg>
