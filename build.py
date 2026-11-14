@@ -97,9 +97,11 @@ def x_axis(sx, lo, hi, step, y0, y1, fmt=signed, label=None):
 
 
 def svg(height, body, title, desc):
-    return (f'<svg viewBox="0 0 {W} {height}" role="img" aria-labelledby="t-{hash(title) & 0xffff} d-{hash(desc) & 0xffff}">'
-            f'<title id="t-{hash(title) & 0xffff}">{esc(title)}</title><desc id="d-{hash(desc) & 0xffff}">{esc(desc)}</desc>'
-            f'{body}</svg>')
+    # aria-label instead of a <title> child: browsers show <title> as a native hover tooltip
+    # over the whole chart, which covers the page's own tooltip.
+    did = f"d-{hashlib.sha1(desc.encode()).hexdigest()[:8]}"
+    return (f'<svg viewBox="0 0 {W} {height}" role="img" aria-label="{esc(title)}" aria-describedby="{did}">'
+            f'<desc id="{did}">{esc(desc)}</desc>{body}</svg>')
 
 
 # ---------------------------------------------------------------- data
