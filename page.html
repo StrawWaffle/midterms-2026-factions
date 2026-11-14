@@ -100,6 +100,11 @@ summary { cursor: pointer; color: var(--link); }
 table { border-collapse: collapse; width: 100%; font-size: 14px; }
 th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
 th { font-weight: 600; position: sticky; top: 0; background: var(--surface); }
+.claims-wrap { max-height: none; overflow: visible; }
+.claims { table-layout: fixed; }
+.claims th, .claims td { white-space: normal; vertical-align: top; line-height: 1.45; overflow-wrap: anywhere; }
+.claims th:nth-child(1), .claims td:nth-child(1) { width: 30%; }
+.claims th:nth-child(2), .claims td:nth-child(2) { width: 20%; }
 #tip {
   position: fixed; z-index: 10; pointer-events: none; display: none; max-width: 300px;
   background: var(--surface); color: var(--ink); border: 1px solid var(--rule); border-radius: 6px;
@@ -264,7 +269,7 @@ th { font-weight: 600; position: sticky; top: 0; background: var(--surface); }
 <p>The heaviest factional spending came earlier. AIPAC's super PAC spent $20.1 million against El-Sayed in the primary but only $0.76 million in the general. The crypto industry's PAC spent $10.2 million against Juliana Stratton in Illinois's primary.</p>
 
 <h3>How the claims hold up</h3>
-<div class="table-wrap"><table>
+<div class="table-wrap claims-wrap"><table class="claims">
 <thead><tr><th>Claim</th><th>Made by</th><th>What the filings show</th></tr></thead>
 <tbody>
 <tr><td>The party didn't invest in progressive Senate nominees</td><td>Pressley, Nixon, many on X</td><td>True for Nixon in Florida, and for Flanagan in a race neither side contested. False for El-Sayed ($54.8M) and Jackson ($38.1M).</td></tr>
