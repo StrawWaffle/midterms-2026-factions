@@ -174,3 +174,11 @@ body.has-selbar main { padding-bottom: 96px; }
   box-shadow: 0 2px 8px rgba(0,0,0,.12); display: flex; gap: 8px; align-items: center; max-width: calc(100% - 32px); }
 .newver button { margin-left: 0; }
 .ci-band { fill: var(--ink); opacity: .35; pointer-events: none; }
+
+/* ---- faction terms in the text: chart key before the word, press to highlight ---- */
+.ft { font: inherit; color: inherit; background: none; border: 0; padding: 0 2px; margin: 0 -2px; border-radius: 4px;
+  cursor: pointer; white-space: nowrap; }
+.ft-key { width: .56em; height: .56em; margin: 0 .3em .12em 0; vertical-align: middle; }
+.ft:hover { background: var(--band); }
+.ft[aria-pressed="true"] { background: var(--band); box-shadow: inset 0 0 0 1px var(--ink-2); }
+.ft:focus-visible { outline: 2px solid var(--link); outline-offset: 1px; }

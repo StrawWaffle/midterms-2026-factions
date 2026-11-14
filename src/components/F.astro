@@ -1,0 +1,12 @@
+---
+// A faction term in the text, keyed to the charts: the faction's own shape and colour sit before
+// the word, and pressing it highlights that faction in every chart, like the legend buttons.
+// Used sparingly, where a sentence compares the factions, not on every mention.
+import { FACTION } from '../lib/factions';
+
+interface Props { f: 'moderate' | 'progressive' | 'both' }
+const { f } = Astro.props;
+const { color, shape } = FACTION[f];
+const name = f === 'both' ? 'nominees with both flags' : `${f}-flagged nominees`;
+---
+<button type="button" class="ft" data-hl-toggle={f} aria-pressed="false" data-tip={`Highlight ${name} in every chart (Esc clears)`}><svg class="ft-key" viewBox="0 0 10 10" aria-hidden="true">{shape === 'circle' && <circle cx="5" cy="5" r="4.2" fill={color} />}{shape === 'square' && <rect x="1.2" y="1.2" width="7.6" height="7.6" fill={color} />}{shape === 'diamond' && <path d="M5 0.3L9.7 5L5 9.7L0.3 5Z" fill={color} />}</svg><slot /></button>
