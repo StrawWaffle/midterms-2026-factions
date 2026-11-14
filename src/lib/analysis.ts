@@ -175,6 +175,23 @@ export const statewideModel = (() => {
     nMod: rows.filter((r) => r.faction === 'moderate').length, nMixed: rows.filter((r) => r.faction === 'mixed-unclear').length };
 })();
 
+// Sensitivity check: Third Way's post-election memo counts Talarico and Ossoff as moderates, where
+// this page codes them mixed or unclear; it also names "Brown" among them, almost certainly Sherrod Brown.
+// Recode all three and rerun the moderate-only comparisons.
+export const THIRD_WAY_MODERATES = ['TX-Senate', 'GA-Senate', 'OH-Senate'];
+export const thirdWay = (() => {
+  const fac = (r: Race): Faction => (THIRD_WAY_MODERATES.includes(r.key) ? 'moderate' : r.faction);
+  const rows = races.filter((r) => r.white !== null && r.oppWeak !== null && r.repOfficeholder !== null);
+  const X = rows.map((r) => [1, +(fac(r) === 'progressive'), r.pres24, +r.dInc, +r.rInc, +(r.office === 'Senate'), r.white!, r.oppWeak!, r.repOfficeholder!, +(fac(r) === 'mixed-unclear')]);
+  const fit = ols(rows.map((r) => r.swing), X, ['const', 'progressive', 'pres24', 'd_inc', 'r_inc', 'senate', 'white', 'opp_weak', 'rep_officeholder', 'mixed'], 'classical');
+  const comp = races.filter((r) => r.office === 'Senate' && fac(r) === 'moderate' && r.cook !== null && Math.abs(r.cook) <= 1);
+  return {
+    vsModerate: contrast(fit, { progressive: -1 }),
+    inModel: rows.filter((r) => THIRD_WAY_MODERATES.includes(r.key)).length,
+    compModN: comp.length, compModMean: mean(comp.map((r) => r.swing)),
+  };
+})();
+
 // ------------------------------------------------------------------ money
 
 export const RATINGS = ['Tossup', 'Lean D', 'Likely D', 'Lean R', 'Likely R'];
