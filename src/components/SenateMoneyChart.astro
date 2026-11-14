@@ -27,7 +27,7 @@ const placed = groups.map((g) => {
 <svg viewBox={`0 0 ${W} ${h}`} role="img" aria-label="Party money for the Democrat against money spent against them, Senate 2026">
   <desc>For each contested Senate race, party-network spending for the Democrat per adult and all outside spending against the Democrat per adult, with the share matched.</desc>
   <XAxis x={x} y0={top} y1={yEnd} step={10} format={(v) => `$${v}`} label="Outside money per adult in the state, general election (US dollars)" />
-  <text x={W - 8} y={top - 8} class="row-sub" text-anchor="end">party share</text>
+  <text x={W - 8} y={top - 8} class="row-sub" text-anchor="end">party matched</text>
   {placed.map((g) => <>
     <text x="8" y={g.gy + 15} class="group-label">{g.rating}</text>
     {g.rows.map(({ r, cy }) => <>
