@@ -405,6 +405,21 @@ def slug(text):
     return re.sub(r"[^a-z0-9]+", "-", t).strip("-")[:60]
 
 
+
+def sidebar_toc(page):
+    """Wrap <main> in a layout with a sticky contents sidebar built from the h2/h3 headings.
+    CSS shows the sidebar only on wide screens; narrow screens keep the in-article contents list."""
+    items = []
+    for m in re.finditer(r'<h([23]) id="([^"]+)"[^>]*>(.*?)<button', page, flags=re.S):
+        level, hid, inner = m.group(1), m.group(2), m.group(3)
+        text = re.sub(r"<[^>]+>", "", inner).strip()
+        items.append(f'<li class="toc-h{level}"><a href="#{hid}">{text}</a></li>')
+    aside = ('<aside class="toc" aria-label="On this page"><div class="toc-inner">'
+             '<a class="toc-top" href="#top">Did moderates win the 2026 midterms?</a>'
+             f'<ol>{"".join(items)}</ol></div></aside>')
+    page = page.replace("<main>", f'<div class="layout">{aside}<main id="top">', 1)
+    return page.replace("</main>", "</main></div>", 1)
+
 def heading_anchors(page):
     """Give every h2/h3 in the article an id and a small copy-link button."""
     seen = set(re.findall(r'id="([^"]+)"', page))
@@ -584,6 +599,7 @@ def main():
         page = page.replace("{{" + k + "}}", v)
     assert "{{" not in page, page[page.index("{{"):page.index("{{") + 40]
     page = heading_anchors(page)
+    page = sidebar_toc(page)
     (SITE / "index.html").write_text(page, encoding="utf-8")
     (SITE / ".nojekyll").write_text("")
     print("wrote", SITE / "index.html")
