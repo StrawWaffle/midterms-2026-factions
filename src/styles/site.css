@@ -184,3 +184,16 @@ body.has-selbar main { padding-bottom: 96px; }
 .ft:hover { background: var(--band); }
 .ft[aria-pressed="true"] { background: var(--band); box-shadow: inset 0 0 0 1px var(--ink-2); }
 .ft:focus-visible { outline: 2px solid var(--link); outline-offset: 1px; }
+
+/* ---- set-apart quotations ---- */
+.pq { margin: 20px 0 24px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--rule);
+  border-left: 3px solid var(--ink-2); border-radius: 0 8px 8px 0; }
+.pq blockquote { margin: 0; padding: 0; border: 0; color: var(--ink); }
+.pq blockquote p { margin: 0; font-size: 17px; line-height: 1.55; max-width: none; }
+.pq figcaption { margin-top: 8px; font-size: 13px; color: var(--ink-2); }
+.pq-pair { display: grid; gap: 12px; margin: 20px 0 24px; }
+.pq-pair .pq { margin: 0; }
+@media (min-width: 640px) { .pq-pair { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .pq { margin-left: 0; margin-right: 0; padding: 12px 14px; } }
+.pq { max-width: 68ch; }
+.pq-pair .pq { max-width: none; }

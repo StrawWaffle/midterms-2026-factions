@@ -1,0 +1,10 @@
+---
+// A quotation set apart from the text, with who said it and where underneath.
+// Kept for the few quotes the argument turns on; shorter quotes stay inline.
+interface Props { who: string; source?: string; href?: string; when?: string }
+const { who, source, href, when } = Astro.props;
+---
+<figure class="pq">
+  <blockquote><p><slot /></p></blockquote>
+  <figcaption>{who}{source && <>, {href ? <a href={href}>{source}</a> : source}</>}{when && `, ${when}`}</figcaption>
+</figure>
