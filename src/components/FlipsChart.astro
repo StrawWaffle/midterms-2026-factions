@@ -1,0 +1,33 @@
+---
+// Dot histogram of the seats Democrats flipped, one dot per seat in one-point bins.
+// The shaded strip marks seats a 3-point handicap would have reversed.
+import { scaleLinear } from 'd3';
+import Mark from './Mark.astro';
+import XAxis from './XAxis.astro';
+import { flips, flipsUnder } from '../lib/analysis';
+import { FACTION } from '../lib/factions';
+import { signed } from '../lib/format';
+
+const W = 720, top = 16, cell = 11;
+const counts = new Map<number, number>();
+const pts = flips.map((s) => {
+  const b = Math.floor(s.margin);
+  const k = counts.get(b) ?? 0;
+  counts.set(b, k + 1);
+  return { s, b, k };
+});
+const maxK = Math.max(...counts.values());
+const base = top + 36 + cell * maxK;
+const h = base + 52;
+const x = scaleLinear().domain([0, 40]).range([40, W - 24]);
+---
+<svg viewBox={`0 0 ${W} ${h}`} role="img" aria-label={`Margins in the ${flips.length} seats Democrats flipped`}>
+  <desc>Dot histogram of the flipped House seats by Democratic winning margin, one dot per seat, with seats won by under 3 points shaded.</desc>
+  <rect x={x(0)} y={top} width={x(3) - x(0)} height={base - top} class="band strong" />
+  <text x={x(3) + 6} y={top + 12} class="note">Won by under 3 points: {flipsUnder(3)} of {flips.length}</text>
+  <XAxis x={x} y0={top} y1={base} step={5} format={(v) => (v ? `+${v}` : '0')} label="Democratic winning margin in flipped seats (points)" />
+  {pts.map(({ s, b, k }) => (
+    <Mark faction={s.faction} x={x(b + 0.5)} y={base - cell / 2 - k * cell - 1} r={4.4} k={s.code}
+      tip={`${s.code}: ${s.dem} won by ${s.margin.toFixed(1)} (${FACTION[s.faction].label.toLowerCase()}); 2024 presidential ${signed(s.pres24)}`} />
+  ))}
+</svg>

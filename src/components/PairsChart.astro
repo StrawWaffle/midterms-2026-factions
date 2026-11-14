@@ -1,0 +1,30 @@
+---
+// Dumbbells: the progressive and the moderate statewide Democrat on the same ballot, sorted by the gap.
+import { scaleLinear } from 'd3';
+import Mark from './Mark.astro';
+import XAxis from './XAxis.astro';
+import { pairs } from '../lib/analysis';
+import { FACTION } from '../lib/factions';
+import { signed } from '../lib/format';
+
+const W = 720, top = 18, row = 40, left = 170;
+const h = top + row * pairs.length + 46;
+const x = scaleLinear().domain([-5, 35]).range([left, W - 90]);
+const last = (n: string) => n.split(' ').slice(-1)[0];
+---
+<svg viewBox={`0 0 ${W} ${h}`} role="img" aria-label="Same-ballot pairs of progressive and moderate Democrats">
+  <desc>For each state where one statewide Democratic nominee was progressive and the other moderate, both margins and the difference.</desc>
+  <XAxis x={x} y0={top} y1={top + row * pairs.length} step={5} format={(v) => signed(v, 0)} label="Democratic margin in the state, same ballot (points)" />
+  <text x={W - 8} y={top + 2} class="row-sub" text-anchor="end">difference</text>
+  {pairs.map(({ prog, mod, diff }, i) => {
+    const cy = top + row * i + row / 2;
+    return <g>
+      <text x={left - 12} y={cy - 3} class="row-label" text-anchor="end">{prog.state}</text>
+      <text x={left - 12} y={cy + 12} class="row-sub" text-anchor="end">{last(prog.dem)} vs {last(mod.dem)}</text>
+      <line x1={x(prog.margin)} x2={x(mod.margin)} y1={cy} y2={cy} class="connector" />
+      {[mod, prog].map((r) => <Mark faction={r.faction} x={x(r.margin)} y={cy} r={5} k={r.key}
+        tip={`${r.dem} (${r.office}, ${FACTION[r.faction].label.toLowerCase()}): ${signed(r.margin)}`} />)}
+      <text x={W - 8} y={cy + 4} class="value" text-anchor="end">{signed(diff)}</text>
+    </g>;
+  })}
+</svg>

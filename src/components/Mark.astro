@@ -1,0 +1,16 @@
+---
+// One data mark. Shape repeats the faction so identity never rests on color alone.
+// data-key links the same race across every chart; data-faction drives the legend highlight.
+import { FACTION, type Faction } from '../lib/factions';
+
+interface Props { faction: Faction; x: number; y: number; r?: number; tip?: string; k?: string }
+const { faction, x, y, r = 4.2, tip, k } = Astro.props;
+const { color, shape } = FACTION[faction];
+const common = { class: 'mk', 'data-faction': faction, 'data-tip': tip, 'data-key': k };
+const f = (v: number) => v.toFixed(1);
+const s = r * 1.7, d = r * 1.35;
+---
+{shape === 'square' && <rect {...common} x={f(x - s / 2)} y={f(y - s / 2)} width={f(s)} height={f(s)} fill={color} />}
+{shape === 'diamond' && <path {...common} d={`M${f(x)} ${f(y - d)}L${f(x + d)} ${f(y)}L${f(x)} ${f(y + d)}L${f(x - d)} ${f(y)}Z`} fill={color} />}
+{shape === 'ring' && <circle {...common} cx={f(x)} cy={f(y)} r={f(r - 0.8)} fill="none" style={`stroke:${color};stroke-width:1.6`} />}
+{shape === 'circle' && <circle {...common} cx={f(x)} cy={f(y)} r={f(r)} fill={color} />}

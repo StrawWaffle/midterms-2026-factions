@@ -1,0 +1,45 @@
+---
+// Each Senate and governor race: 2024 presidential margin (x) against the Democrat's swing (y),
+// with the average relationship as a dashed line. Selected names are labelled directly.
+import { scaleLinear } from 'd3';
+import Mark from './Mark.astro';
+import XAxis from './XAxis.astro';
+import { races, swingSlope } from '../lib/analysis';
+import { FACTION } from '../lib/factions';
+import { signed } from '../lib/format';
+
+const W = 720, left = 52, top = 14, bottom = 50, h = 520;
+const [x0, x1, y0, y1] = [-50, 35, -12, 32];
+const x = scaleLinear().domain([x0, x1]).range([left, W - 24]);
+const y = scaleLinear().domain([y0, y1]).range([h - bottom, top]);
+const order = { 'mixed-unclear': 0, unflagged: 0, both: 1, moderate: 1, progressive: 2 } as const;
+// label offsets chosen by eye so names don't sit on other points
+const labels: Record<string, [number, number, 'start' | 'end' | 'middle']> = {
+  'Abdul El-Sayed': [-8, 4, 'end'], 'Peggy Flanagan': [8, 10, 'start'], 'Troy Jackson': [8, 4, 'start'],
+  'Roy Cooper': [9, 4, 'start'], 'James Talarico': [0, -10, 'middle'], 'Adam Hamilton': [-8, 4, 'end'],
+  'Annie Andrews': [-9, -4, 'end'], 'Josh Turek': [-9, 4, 'end'], 'Amanda Janoo': [-8, -8, 'end'],
+  'Jocelyn Benson': [-8, -6, 'end'], 'Amy Klobuchar': [8, -2, 'start'],
+};
+const yt = y.ticks(5);
+---
+<svg viewBox={`0 0 ${W} ${h}`} role="img" aria-label="Statewide swing against 2024 presidential margin">
+  <desc>Scatterplot of Senate and governor races: x is the 2024 presidential margin in the state, y is the Democrat's swing from it, by faction, with the average relationship as a dashed line.</desc>
+  {yt.map((t) => <>
+    <line x1={left} x2={W - 24} y1={y(t)} y2={y(t)} class={t === 0 ? 'zero' : 'grid'} />
+    <text x={left - 8} y={y(t) + 4} class="tick" text-anchor="end">{signed(t, 0)}</text>
+  </>)}
+  <XAxis x={x} y0={top} y1={h - bottom} step={10} format={(v) => signed(v, 0)} label="2024 presidential margin in the state (Harris minus Trump)" />
+  <text x={left - 40} y={top - 2} class="axis-label">Swing</text>
+  <line x1={x(x0)} y1={y(swingSlope.intercept + swingSlope.slope * x0)} x2={x(x1)} y2={y(swingSlope.intercept + swingSlope.slope * x1)} class="fit" />
+  {[...races].sort((a, b) => order[a.faction] - order[b.faction]).map((r) => {
+    const px = x(r.pres24), py = y(Math.max(r.swing, y0 + 1));
+    const lab = labels[r.dem];
+    let name = r.dem.split(' ').slice(-1)[0] + (r.office === 'Governor' ? ' (Gov)' : '');
+    if (r.swing < y0) name += ` (${r.st}, ${signed(r.swing)}, off scale)`;
+    return <>
+      <Mark faction={r.faction} x={px} y={py} r={4.6} k={r.key}
+        tip={`${r.st} ${r.office}: ${r.dem} (${FACTION[r.faction].label.toLowerCase()}). Margin ${signed(r.margin)}, 2024 presidential ${signed(r.pres24)}, swing ${signed(r.swing)}`} />
+      {lab && <text x={px + lab[0]} y={py + lab[1]} class="point-label" text-anchor={lab[2]}>{name}</text>}
+    </>;
+  })}
+</svg>

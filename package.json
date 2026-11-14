@@ -1,0 +1,17 @@
+{
+  "name": "midterms-2026-factions",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "7.4.2",
+    "d3": "7.9.2"
+  },
+  "devDependencies": {
+    "@types/d3": "7.4.3"
+  }
+}

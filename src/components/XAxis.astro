@@ -1,0 +1,22 @@
+---
+// Vertical gridlines, tick labels and an axis title for a horizontal d3 linear scale.
+import type { ScaleLinear } from 'd3';
+
+interface Props {
+  x: ScaleLinear<number, number>; y0: number; y1: number; count?: number; step?: number;
+  format?: (v: number) => string; label?: string;
+}
+const { x, y0, y1, count = 8, step, format = (v: number) => String(v), label } = Astro.props;
+const [d0, d1] = x.domain();
+const ticks = step ? Array.from({ length: Math.floor((d1 - d0) / step + 1e-9) + 1 }, (_, i) => +(d0 + i * step).toFixed(6)) : x.ticks(count);
+const [r0, r1] = x.range();
+---
+<g class="axis" aria-hidden="true">
+  {ticks.map((t) => (
+    <>
+      <line x1={x(t).toFixed(1)} x2={x(t).toFixed(1)} y1={y0} y2={y1} class={t === 0 ? 'zero' : 'grid'} />
+      <text x={x(t).toFixed(1)} y={y1 + 16} class="tick" text-anchor="middle">{format(t)}</text>
+    </>
+  ))}
+  {label && <text x={((r0 + r1) / 2).toFixed(1)} y={y1 + 34} class="axis-label" text-anchor="middle">{label}</text>}
+</g>

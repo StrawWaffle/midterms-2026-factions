@@ -1,0 +1,41 @@
+---
+// Democratic challengers and open-seat nominees by race rating: party committee and party
+// super PAC money per vote cast. The blue tick is the moderate median in each row.
+import { scaleLinear } from 'd3';
+import Mark from './Mark.astro';
+import XAxis from './XAxis.astro';
+import { houseMoneyRows, houseMoneyMedian, HOUSE_RATINGS } from '../lib/analysis';
+import { FACTION } from '../lib/factions';
+import { usd, jitter } from '../lib/format';
+
+const W = 720, hl = 200, rowH = 74, top = 14;
+const h = top + rowH * HOUSE_RATINGS.length + 48;
+const x = scaleLinear().domain([0, 80]).range([hl, W - 24]).clamp(true);
+const names: Record<string, [string, number, number, 'start' | 'middle']> = {
+  'CA-22': ['Villegas', 7, -6, 'start'], 'MI-07': ['Lawrence', 7, 16, 'start'], 'ME-02': ['Dunlap', 0, -10, 'middle'],
+  'VA-05': ['Perriello', -8, 16, 'start'], 'TN-09': ['Pearson', 7, -8, 'start'],
+};
+---
+<svg viewBox={`0 0 ${W} ${h}`} role="img" aria-label="Party money for House challengers by race rating">
+  <desc>Democratic challengers and open-seat nominees in Toss-up, Lean and Likely seats: party committee and House Majority PAC money per vote cast, rows are race ratings, with the moderate median marked.</desc>
+  <XAxis x={x} y0={top} y1={top + rowH * HOUSE_RATINGS.length} step={10} format={(v) => `$${v}`} label="Party committee and party super PAC money per vote cast (US dollars)" />
+  {HOUSE_RATINGS.map((rating, i) => {
+    const cy = top + rowH * i + rowH / 2;
+    const rows = houseMoneyRows.filter((r) => r.rating === rating).sort((a, b) => +(a.faction === 'progressive') - +(b.faction === 'progressive'));
+    const med = houseMoneyMedian(rating);
+    return <g>
+      <text x={hl - 14} y={cy - 4} class="row-label" text-anchor="end">{rating}</text>
+      <text x={hl - 14} y={cy + 12} class="row-sub" text-anchor="end">n={rows.length}, moderate median ${med.toFixed(0)}</text>
+      <line x1={x(med)} x2={x(med)} y1={cy - rowH * 0.4} y2={cy + rowH * 0.4} class="median" style="stroke:var(--moderate)" />
+      {rows.map((r) => {
+        const yy = cy + jitter(r.code, rowH * 0.28);
+        const nm = names[r.code];
+        return <>
+          <Mark faction={r.faction} x={x(r.perVote)} y={yy} r={4} k={r.code}
+            tip={`${r.code}: ${r.dem} (${FACTION[r.faction].label.toLowerCase()}), ${usd(r.perVote)} per vote${r.redToBlue ? `, Red to Blue ${r.rtbDate}` : ''}; ${r.won ? 'won' : 'lost'}`} />
+          {nm && <text x={x(r.perVote) + nm[1]} y={yy + nm[2]} class="point-label" text-anchor={nm[3]}>{nm[0]}</text>}
+        </>;
+      })}
+    </g>;
+  })}
+</svg>

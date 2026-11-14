@@ -1,0 +1,28 @@
+---
+// A chart with its legend, caption and a table view of the same numbers.
+// Legend entries are buttons: pressing one highlights that faction in every chart on the page,
+// with axes unchanged (the other marks fade rather than disappear).
+import { FACTION, type Faction } from '../lib/factions';
+import Mark from './Mark.astro';
+
+interface Props { id: string; legend?: Faction[]; caption: string; hint?: string }
+const { id, legend = [], caption, hint } = Astro.props;
+const hasTable = Astro.slots.has('table');
+---
+<figure id={id}>
+  {(legend.length > 0 || Astro.slots.has('legend')) && (
+    <div class="legend">
+      {legend.map((f) => (
+        <button type="button" class="lg" data-hl-toggle={f} aria-pressed="false" title={`Highlight ${FACTION[f].label.toLowerCase()} in every chart`}>
+          <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><Mark faction={f} x={7} y={7} r={4.6} /></svg>
+          {FACTION[f].label}
+        </button>
+      ))}
+      <slot name="legend" />
+      {hint && <span class="hint">{hint}</span>}
+    </div>
+  )}
+  <div class="chart"><slot /></div>
+  <figcaption>{caption}</figcaption>
+  {hasTable && <details><summary>Show the numbers as a table</summary><div class="table-wrap"><slot name="table" /></div></details>}
+</figure>

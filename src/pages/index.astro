@@ -1,0 +1,299 @@
+---
+import Base, { type TocItem } from '../layouts/Base.astro';
+import H from '../components/H.astro';
+import Figure from '../components/Figure.astro';
+import HouseStrip from '../components/HouseStrip.astro';
+import FlipsChart from '../components/FlipsChart.astro';
+import StateScatter from '../components/StateScatter.astro';
+import PairsChart from '../components/PairsChart.astro';
+import ForestChart from '../components/ForestChart.astro';
+import SenateMoneyChart from '../components/SenateMoneyChart.astro';
+import HouseMoneyChart from '../components/HouseMoneyChart.astro';
+import {
+  seats, races, houseMeanAll, group, flips, flipCount, flipsUnder, lostClose, uncounted, uncalled, seatByCode,
+  houseModels, nStrictProg, nStrictMod, senateCompetitive, swingSlope, pairs, pairSummary, statewideModel,
+  senateMoneyRows, senateMoneyBy, houseMoneyRows, houseMoneyBy, houseMoneyMedian, redToBlue, nobodyHelped, receipts, forest,
+} from '../lib/analysis';
+import { entities } from '../lib/entities';
+import { FACTION, HOUSE_ROWS } from '../lib/factions';
+import { signed, fixed, usd, millions, interval, pct } from '../lib/format';
+import { mean } from '../lib/stats';
+
+const toc: TocItem[] = [
+  { id: 'measure', title: 'How to compare candidates fairly', level: 2 },
+  { id: 'tide', title: 'The wave lifted every faction', level: 2 },
+  { id: 'where', title: 'Moderates ran where the seats were', level: 2 },
+  { id: 'flips', title: 'Would progressives have won those seats?', level: 2 },
+  { id: 'house', title: 'Seat for seat, the House gap is small', level: 2 },
+  { id: 'statewide', title: 'Statewide, progressives ran a few points behind', level: 2 },
+  { id: 'same-ballot', title: 'The cleanest test: two Democrats on one ballot', level: 3 },
+  { id: 'michigan', title: 'Michigan: real penalties, and not only ideology', level: 3 },
+  { id: 'estimates', title: 'Every estimate in one place', level: 2 },
+  { id: 'primaries', title: 'Why progressives rarely win swing-seat primaries', level: 2 },
+  { id: 'money', title: 'Did the party back its progressive nominees?', level: 2 },
+  { id: 'senate-money', title: 'Senate: the money followed the target map', level: 3 },
+  { id: 'house-money', title: 'House: progressives in target seats got more, not less', level: 3 },
+  { id: 'progressive-groups', title: 'Progressive groups barely spent in general elections', level: 3 },
+  { id: 'claims', title: 'How the claims hold up', level: 3 },
+  { id: 'hasan', title: "What this means for Hasan's argument", level: 2 },
+  { id: 'data', title: 'Data, method and limits', level: 2 },
+  { id: 'sources', title: 'Sources', level: 2 },
+];
+const T = (id: string) => toc.find((t) => t.id === id)!.title;
+
+const ahead = (est: number) => (est >= 0 ? 'ahead of' : 'behind');
+const g = { mod: group('moderate'), both: group('both'), prog: group('progressive'), none: group('unflagged') };
+const pair = (st: string) => pairs.find((p) => p.prog.st === st)!;
+const [MI, MN, ME, OR, MA] = ['MI', 'MN', 'ME', 'OR', 'MA'].map(pair);
+const swingOf = (st: string) => races.find((r) => r.st === st && r.office === 'Senate')!.swing;
+const modCompetitiveMean = mean(senateCompetitive.moderate.map((r) => r.swing));
+const iaPair = (() => { const s = races.find((r) => r.st === 'IA' && r.office === 'Senate')!, gv = races.find((r) => r.st === 'IA' && r.office === 'Governor')!; return Math.abs(s.margin - gv.margin); })();
+const m = (st: string) => senateMoneyBy(st)!;
+const share = (st: string) => (m(st).party / m(st).against) * 100;
+const partyRank = [...senateMoneyRows].sort((a, b) => b.party - a.party).findIndex((r) => r.st === 'ME') + 1;
+const ordinal = (n: number) => ['', 'highest', 'second-highest', 'third-highest'][n] ?? `${n}th-highest`;
+const hm = (code: string) => houseMoneyBy(code)!;
+const rtb = { prog: redToBlue('progressive'), mod: redToBlue('moderate'), none: redToBlue('unflagged') };
+const nProgCompetitiveChallengers = houseMoneyRows.filter((r) => r.faction === 'progressive' && ['Toss-up', 'Lean'].includes(r.rating)).length;
+const words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+const w = (n: number) => words[n] ?? String(n);
+const Cap = (s: string) => s[0].toUpperCase() + s.slice(1);
+const thousands = (v: number) => '$' + Math.round(v / 1000) + ',000';
+---
+<Base title="Moderates, progressives and the 2026 wave"
+  description="Did moderate or progressive Democrats drive the 2026 midterm wave? House, Senate and governor results compared against 2024, with the data."
+  toc={toc}>
+<button class="theme" type="button" id="theme">Dark mode</button>
+<h1>Did moderates win the 2026 midterms?</h1>
+<p class="dateline">A look at every House, Senate and governor race, first written November 14, 2026. Results are unofficial and some seats are still counting; the numbers on this page update as counts and filings come in.</p>
+
+<p>After Democrats' wave on November 3, a fight broke out over who deserves the credit. Centrist writers said moderate candidates ran ahead and progressives lagged. Mehdi Hasan answered in a <a href="https://x.com/mehdirhasan/status/2121382704105267425">Zeteo video</a> that this was "complete and utter bullshit. Just totally out of context, cherry-picked numbers, and ridiculous comparisons."</p>
+<p>Both sides are arguing about two different questions without separating them. One is what caused Democrats to do so well. The other is whether moderates do better than progressives in the same seat. This page takes them one at a time, with the results of all {seats.length} House races that had a Democrat against a Republican, all {races.length} comparable Senate and governor races, and every published analysis I could find.</p>
+
+<div class="answer">
+<p><strong>Short answer.</strong> The wave came from the national environment, and it lifted every faction by about {Math.round(houseMeanAll)} points. Moderates do run somewhat better than progressives in the same kind of seat, by about 0 to 3 points in House races and about 2 to 6 points statewide. That gap is real but small next to the wave. Moderates won most of the seats Democrats flipped mainly because moderates were the nominees in most of the seats that could flip. In this wave, a 3-point handicap would have reversed {flipsUnder(3)} of the {flips.length} flips. In a close year it would decide far more.</p>
+<p>On the money fight: party groups funded progressive nominees about as heavily as moderates in the races they targeted, and skipped moderates and progressives alike in the races they didn't. Progressive groups themselves spent very little in general elections. <a href="#money">Details below.</a></p>
+</div>
+
+<div class="find">
+  <label for="find-input">Find a race</label>
+  <input id="find-input" list="find-list" placeholder="A seat like CA-22, a state, or a candidate" autocomplete="off" />
+  <datalist id="find-list">{entities.map((e) => <option value={e.label} />)}</datalist>
+  <span class="help">Picks the race out in every chart below and keeps its numbers at the bottom of the screen. You can also click or tap any dot. Press a legend entry to highlight one faction everywhere. Escape clears.</span>
+</div>
+
+<nav aria-label="Contents">
+<strong>Contents</strong>
+<ol>{toc.filter((t) => t.level === 2).map((t) => <li><a href={`#${t.id}`}>{t.title}</a></li>)}</ol>
+</nav>
+
+<H id="measure">{T('measure')}</H>
+<p>Raw winning margins tell you almost nothing about a candidate. A Democrat who wins a deep blue seat by 40 points hasn't outperformed one who wins a Trump seat by 2. So nearly every serious analysis starts from a baseline, and the usual one is the 2024 presidential result in the same seat. If Harris won a district by 5 and the 2026 Democrat won it by 20, that Democrat ran 15 points ahead of the baseline. This page calls that number the <em>swing</em> or <em>overperformance</em>.</p>
+<p>Two complications matter throughout. First, seats that voted heavily for Trump in 2024 had more room to swing back, so red-seat candidates look better on this measure whatever their ideology. Second, "moderate" and "progressive" are labels someone has to assign. For House races I use endorsements and caucus membership. A nominee is <em>progressive</em> if they belong to the Congressional Progressive Caucus or were endorsed by Justice Democrats, DSA, Bernie Sanders, Our Revolution or the Progressive Caucus PAC. A nominee is <em>moderate</em> if they belong to or were endorsed by the New Democrat Coalition or the Blue Dogs, or were endorsed by WelcomePAC. Some nominees carry both flags and many carry neither. A stricter version keeps only Justice Democrats, DSA and Sanders on one side and Blue Dogs and WelcomePAC on the other.</p>
+
+<H id="tide">{T('tide')}</H>
+<p>Across all {seats.length} contested House seats, the Democratic nominee ran an average of {houseMeanAll.toFixed(1)} points ahead of Harris's 2024 margin. Split by faction, the averages barely differ, and their 95% intervals overlap. Moderate-flagged nominees ran {signed(g.mod.over.mean)}, nominees with both flags {signed(g.both.over.mean)}, progressive-flagged nominees {signed(g.prog.over.mean)}, and nominees with no flag {signed(g.none.over.mean)}.</p>
+<Figure id="fig-tide" legend={HOUSE_ROWS} hint="Press to highlight"
+  caption={`Each dot is one of ${seats.length} Democratic House nominees in a two-party race. The tick is each faction's mean and the shaded bar its 95% interval. Hover or tap a dot for the race; click it to mark the same seat in every chart. The far-right dots are heavily Hispanic seats in South Texas and the Central Valley.`}>
+  <HouseStrip field="overperf" domain={[-10, 50]} step={10} stat="mean"
+    axisLabel="How far the Democrat ran ahead of Harris's 2024 margin (points)" title="House overperformance by faction"
+    desc="Strip plot of House races: each dot is one Democratic nominee, rows are factions, x is how far the nominee ran ahead of the 2024 presidential margin, with each faction's mean and 95% interval." />
+  <table slot="table"><thead><tr><th>Faction</th><th>Nominees</th><th>Mean overperformance</th><th>95% interval</th><th>Median</th></tr></thead>
+    <tbody>{HOUSE_ROWS.map((f) => { const x = group(f); return <tr><td>{FACTION[f].label}</td><td>{x.n}</td><td>{signed(x.over.mean)}</td><td>{interval(x.over.lo, x.over.hi)}</td><td>{signed(x.overMedian)}</td></tr>; })}</tbody></table>
+</Figure>
+<p>The wave was about Trump, not about Democrats' ideology. Trump's approval averaged 39 percent, and disapproval was higher than approval in all 11 competitive Senate states (<a href="https://www.brookings.edu/articles/how-democrats-won-big-and-why-2028-remains-an-open-question/">Brookings</a>). An early analysis of 13 states credits about 75 percent of the Democratic gain to Republicans staying home and about 20 percent to voters switching sides (<a href="https://michiganadvance.com/?p=115713">Stateline</a>). That estimate is preliminary. Still, when most of a wave comes from the other side's voters not showing up, the Democratic nominee's ideology has less to work on.</p>
+<p>The biggest overperformers sit at the far right of the chart, and almost all of them are in heavily Hispanic districts in South Texas and California's Central Valley. Henry Cuellar ran {seatByCode('TX-28').overperf.toFixed(1)} points ahead of the 2024 margin, Bobby Pulido {seatByCode('TX-15').overperf.toFixed(1)} and Randy Villegas {seatByCode('CA-22').overperf.toFixed(1)}. Cuellar and Pulido are Blue Dogs, and Villegas is a Sanders-backed progressive. AP's numbers show Democrats running about 11 points above Harris in House districts that are at least a quarter Hispanic, against about 7 elsewhere (<a href="https://www.ajc.com/news/2026/11/latino-voters-swing-left-in-midterm-elections-lifting-democrats-to-big-wins-in-texas-and-nationwide/">AP via the AJC</a>). That swing belonged to the districts, not the factions.</p>
+
+<H id="where">{T('where')}</H>
+<p>The factions did not run in the same places. Of the {g.prog.n} progressive-flagged nominees, the median ran in a seat Harris won by {fixed(g.prog.presMedian)} points, only {g.prog.nCompetitive} ran in seats within 15 points, and {g.prog.nTrump} ran in seats Trump carried. Of the {g.mod.n} moderate-flagged nominees, the median seat was {signed(g.mod.presMedian)}, {g.mod.nCompetitive} ran in competitive seats and {g.mod.nTrump} ran in Trump seats.</p>
+<Figure id="fig-where" legend={HOUSE_ROWS} hint="Press to highlight"
+  caption={`The same ${seats.length} nominees, placed by how their district voted in 2024. The tick is each faction's median. The shaded band is the competitive range.`}>
+  <HouseStrip field="pres24" domain={[-50, 90]} step={10} stat="median" band={[-15, 15, 'Competitive (within 15)']}
+    axisLabel="2024 presidential margin in the district (Harris minus Trump)" title="Where each faction's nominees ran"
+    desc="Strip plot of House races by 2024 presidential margin of the district, rows are factions, with the competitive range shaded." />
+  <table slot="table"><thead><tr><th>Faction</th><th>Nominees</th><th>Median 2024 seat</th><th>In competitive seats</th><th>In Trump-won seats</th></tr></thead>
+    <tbody>{HOUSE_ROWS.map((f) => { const x = group(f); return <tr><td>{FACTION[f].label}</td><td>{x.n}</td><td>{signed(x.presMedian)}</td><td>{x.nCompetitive}</td><td>{x.nTrump}</td></tr>; })}</tbody></table>
+</Figure>
+<p>This is why moderates won most of the flips. Democrats took {flips.length} seats that Republicans held. {flipCount('moderate')} went to moderate-flagged nominees, {flipCount('both')} to nominees with both flags, {flipCount('progressive')} to progressive-flagged nominees ({flips.filter((s) => s.faction === 'progressive').map((s) => `${s.dem} in ${s.code}`).join(' and ')}) and {flipCount('unflagged')} to nominees with no flag. Third Way presents this pattern as proof that <a href="https://www.thirdway.org/memo/moderates-made-democratic-majorities">"moderates made Democratic majorities."</a> In a literal sense they did. They were the ones on the ballot in the seats that decided the majority.</p>
+<p>The count can't tell you whether a progressive would have done as well in those same seats, because progressives mostly weren't running there. The NewDem Action Fund endorsed nearly every serious challenger in a Trump-won or near-even seat, while progressive groups put most of their effort into open primaries in safe blue seats.</p>
+
+<H id="flips">{T('flips')}</H>
+<p>One way to answer is to ask how many flips were close enough for a small handicap to matter. Suppose a progressive nominee in each flipped seat had run 3 points worse than the moderate who actually ran. That is roughly the size of the moderate advantage the best published estimates find.</p>
+<Figure id="fig-flips" legend={HOUSE_ROWS} hint="Press to highlight"
+  caption="One dot per flipped seat, stacked in one-point bins. The shaded strip holds the seats a 3-point handicap would have reversed.">
+  <FlipsChart />
+  <table slot="table"><thead><tr><th>Seat</th><th>Democrat</th><th>Margin</th><th>Faction</th></tr></thead>
+    <tbody>{flips.map((s) => <tr><td>{s.code}</td><td>{s.dem}</td><td>{signed(s.margin)}</td><td>{FACTION[s.faction].label}</td></tr>)}</tbody></table>
+</Figure>
+<p>{flipsUnder(3)} of the {flips.length} flips were won by less than 3 points, and {flipsUnder(5)} by less than 5. The rest were won by margins the wave would have carried with almost any nominee. So in 2026 the moderate advantage was worth roughly a handful of House seats, not the majority.</p>
+<p>The moderate label didn't guarantee anything either. Democrats lost {lostClose.length} House races by less than 3 points, and most of those nominees were moderate-flagged or had no flag at all.</p>
+<p>The handful matters more in a normal year. In a close national environment, a few points is the difference in dozens of seats, and that is when the moderate advantage pays off.</p>
+
+<H id="house">{T('house')}</H>
+<p>The fairer test compares nominees in similar seats. I regressed each Democrat's 2026 margin on the seat's 2024 presidential margin, incumbency and faction flags. Under the broad definition, moderate-only nominees ran {Math.abs(houseModels.broadAll.est).toFixed(1)} points {ahead(houseModels.broadAll.est)} progressive-only nominees across all {houseModels.broadAll.n} seats (95% interval {interval(houseModels.broadAll.lo, houseModels.broadAll.hi)}), and {Math.abs(houseModels.broadCompetitive.est).toFixed(1)} points {ahead(houseModels.broadCompetitive.est)} them in the {houseModels.broadCompetitive.n} competitive seats ({interval(houseModels.broadCompetitive.lo, houseModels.broadCompetitive.hi)}). Neither result is distinguishable from zero.</p>
+<p>The strict definition gives moderates an edge of {fixed(houseModels.strictAll.est)} points (95% interval {interval(houseModels.strictAll.lo, houseModels.strictAll.hi)}). Without the seven South Texas and Central Valley seats it is {fixed(houseModels.strictNoOutliers.est)} ({interval(houseModels.strictNoOutliers.lo, houseModels.strictNoOutliers.hi)}). Controlling for the district's Hispanic and college-educated shares instead gives {fixed(houseModels.strictControls.est)}. None of these is statistically significant, partly because there are only {nStrictProg} strict progressives and {nStrictMod} strict moderates.</p>
+<p>The published House analyses land in the same range:</p>
+<ul>
+<li>Lakshya Jain of Split Ticket, in <a href="https://www.theargumentmag.com/p/do-moderates-still-have-an-electability">The Argument</a>, models what a generic Democrat would have won in each seat. Blue Dogs ran "a little over 3 points" better than progressives, down from nearly 5 in 2018 to 2024. He concludes that moderation "may have had less of an advantage than ever before."</li>
+<li>The <a href="https://cwcp.substack.com/p/ideological-endorsements-mostly-didnt">Center for Working-Class Politics</a> compared each nominee with Democrats in similar districts. Most factions came within 1 to 2 points of each other. Blue Dogs ran nearly 3 ahead, but all of that came from four candidates: Cuellar, Pulido, Jamie Ager and Dembo. Justice Democrats ran about 1.5 behind. Working-class populist candidates, claimed by both camps, did best of any group at about 6 to 7 ahead.</li>
+<li>G. Elliott Morris, as reported by <a href="https://www.cnn.com/2026/11/06/politics/far-left-democrats-midterm-election">CNN</a>, measured raw swing from Harris. Progressive Caucus members averaged +12.2, New Democrats +14.1, Blue Dogs +15.4 and DSA members +16.5, the last on only seven candidates in safe seats.</li>
+<li>Adam Bonica found that statewide candidates in ten key states ran only 1.3 points away from their state's House vote on average, and called the factional fight "a distraction" (<a href="https://data4democracy.substack.com/p/parties-are-electable-not-candidates">Bonica</a>).</li>
+</ul>
+<p>The best performers in our data were four nominees endorsed by both the Blue Dogs and Sanders or Our Revolution: Cooke in WI-3, Forstag in MT-1, Poindexter in OH-7 and Brooks in PA-7. Four races can't carry a conclusion, but it fits the Center for Working-Class Politics' finding that the populist-versus-establishment split predicted results better than left-versus-center.</p>
+
+<H id="statewide">{T('statewide')}</H>
+<p>The centrist case is strongest in the Senate. The three progressives in competitive Senate races swung their states much less than the moderates did. Abdul El-Sayed swung Michigan {fixed(swingOf('MI'))} points from 2024, Peggy Flanagan swung Minnesota {fixed(swingOf('MN'))}, and Troy Jackson swung Maine {fixed(swingOf('ME'))}. {Cap(w(senateCompetitive.moderate.length))} moderates in competitive races averaged {modCompetitiveMean.toFixed(1)}. Jonathan Chait summed up this comparison in <a href="https://archive.ph/20261112201741/https://www.theatlantic.com/ideas/2026/11/moderates-midterms-success-progressives/689371/">The Atlantic</a>: "the five left-wing candidates backed by Sanders accounted for the four smallest swings in contested races."</p>
+<p>Much of that gap comes from geography. Red states swung harder no matter who ran. Across all {races.length} races, each point of Trump's 2024 margin added about {Math.abs(swingSlope.slope).toFixed(2)} points of Democratic swing, and the moderates in that comparison ran in red states while the progressives ran in purple and blue ones.</p>
+<Figure id="fig-scatter" legend={['moderate', 'progressive', 'mixed-unclear']} hint="Press to highlight"
+  caption={`${races.length} Senate and governor races with a Democrat against a Republican. The dashed line is the average relationship across all of them: each point of 2024 Trump margin goes with about ${Math.abs(swingSlope.slope).toFixed(2)} more points of Democratic swing. Races off the bottom of the scale are drawn at the edge and labelled.`}>
+  <StateScatter />
+  <table slot="table"><thead><tr><th>State</th><th>Office</th><th>Democrat</th><th>Faction</th><th>2024 margin</th><th>2026 margin</th><th>Swing</th></tr></thead>
+    <tbody>{[...races].sort((a, b) => b.swing - a.swing).map((r) => <tr><td>{r.st}</td><td>{r.office}</td><td>{r.dem}</td><td>{FACTION[r.faction].label}</td><td>{signed(r.pres24)}</td><td>{signed(r.margin)}</td><td>{signed(r.swing)}</td></tr>)}</tbody></table>
+</Figure>
+<p>Opponents mattered too. Talarico faced Ken Paxton, whom about two thirds of Texas voters said lacked the character to serve. Annie Andrews faced Darline Graham, appointed to the seat after Lindsey Graham's death (<a href="https://www.clickondetroit.com/news/politics/2026/11/04/how-trump-and-republicans-lost-the-2026-midterm-elections-according-to-the-ap-voter-poll/">AP Voter Poll</a>). Adam Hamilton faced Roger Marshall, whose approval fell to 26 percent in one Kansas survey after a report that his former practice sued more than 700 patients over medical debt (<a href="https://mediaite.com/politics/kansas-sen-roger-marshall-gets-wrecked-by-poll-respondents-over-suing-his-patients-total-scumbag-fake-kansan">Mediaite</a>). In our statewide model, facing a Republican who had held elected office cost about {Math.abs(statewideModel.officeholder.est).toFixed(0)} points of swing, roughly as much as being progressive.</p>
+
+<H id="same-ballot" level={3}>{T('same-ballot')}</H>
+<p>The best comparison holds the state, the day and the national mood fixed. In {w(pairs.length)} states, one statewide Democrat was progressive and the other moderate.</p>
+<Figure id="fig-pairs" legend={['moderate', 'progressive']} hint="Press to highlight"
+  caption="States where one statewide Democrat was progressive and the other moderate. Margins are Democratic minus Republican share.">
+  <PairsChart />
+  <table slot="table"><thead><tr><th>State</th><th>Progressive</th><th>Margin</th><th>Moderate</th><th>Margin</th><th>Difference</th></tr></thead>
+    <tbody>{pairs.map((p) => <tr><td>{p.prog.state}</td><td>{p.prog.dem} ({p.prog.office})</td><td>{signed(p.prog.margin)}</td><td>{p.mod.dem} ({p.mod.office})</td><td>{signed(p.mod.margin)}</td><td>{signed(p.diff)}</td></tr>)}</tbody></table>
+</Figure>
+<p>In the three competitive states the progressive ran behind. El-Sayed trailed Jocelyn Benson by {Math.abs(MI.diff).toFixed(1)} points of margin in Michigan, and Flanagan trailed Amy Klobuchar by {Math.abs(MN.diff).toFixed(1)} in Minnesota. Jackson trailed Hannah Pingree by {Math.abs(ME.diff).toFixed(1)} in Maine, but an independent took 8 percent in the governor's race, so on vote share the three gaps are {Math.abs(MI.shareDiff).toFixed(1)}, {Math.abs(MN.shareDiff).toFixed(1)} and {Math.abs(ME.shareDiff).toFixed(1)} points. In safe blue states the pattern reverses: Jeff Merkley ran {OR.diff.toFixed(1)} points ahead of Tina Kotek in Oregon and Ed Markey {MA.diff.toFixed(1)} ahead of Maura Healey in Massachusetts. Across all {w(pairs.length)} pairs the progressive averaged {signed(-pairSummary.mean)} points against the moderate (95% interval {interval(-pairSummary.hi, -pairSummary.lo)}), which is noise. Two moderates on Iowa's ballot, Josh Turek and Rob Sand, were {iaPair.toFixed(1)} points apart.</p>
+<p>A regression across the {statewideModel.n} races with exit-poll and opponent data, controlling for the 2024 margin, incumbency, office, the white share of the electorate and opponent quality, puts progressives {statewideModel.prog.est.toFixed(1)} points behind (95% interval {fixed(statewideModel.prog.lo)} to {fixed(statewideModel.prog.hi)}). That rests on {w(statewideModel.nProg)} progressive nominees, only three of them in competitive races. My best reading of all the statewide evidence is that progressives ran 2 to 6 points behind comparable Democrats.</p>
+
+<H id="michigan" level={3}>{T('michigan')}</H>
+<p>El-Sayed ran behind Benson among nearly every group in the exit poll, which points to a general candidate penalty rather than one group defecting. Several things fed it.</p>
+<ul>
+<li>Outside groups spent about $134 million opposing him in the general election, around three times the $42 million spent against Roy Cooper in North Carolina, a state of similar size (<a href="https://votelog.org/investigations/michigan-senate-general-money">VoteLog Michigan</a>, <a href="https://votelog.org/investigations/north-carolina-senate-general-money">VoteLog North Carolina</a>).</li>
+<li>A September Washington Post and Schar School poll found 45 percent of likely Michigan voters would not consider a Muslim for president. Rogers led that group 75 to 18, and "El-Sayed's support among that group is six percentage points lower than Benson's" (<a href="https://archive.ph/20261030013825/https://www.washingtonpost.com/politics/2026/09/17/michigan-senate-race-poll-finds-abdul-el-sayed-has-narrow-edge-over-mike-rogers/">Washington Post, archived</a>). Six points across 45 percent of voters is about 2.7 points overall, most of his gap with Benson.</li>
+<li>The same poll found 48 percent calling El-Sayed "too liberal" for them, against 43 percent calling Rogers "too conservative." The Schar School's Justin Gest put it this way: "It is tempting to attribute El-Sayed's lackluster polling exclusively to Islamophobia, but his socialist endorsements and policy positions are certainly not helping him either."</li>
+</ul>
+<p>Religious bias and ideology overlap in Michigan and can't be separated with the data available. Minnesota is cleaner. Flanagan faced only about $2.6 million in outside opposition (<a href="https://votelog.org/investigations/minnesota-senate-general-money">VoteLog Minnesota</a>) and a first-time candidate, and still ran about {Math.abs(MN.shareDiff).toFixed(0)} points of vote share behind Klobuchar, whose long statewide record explains part of that. Maine is the weakest evidence either way. Jackson became the nominee in late July after Graham Platner withdrew, and he beat Susan Collins, who had won five straight elections. Chait's reply, that Collins is formidable because "she has built a reputation as a moderate," is fair as far as it goes. But Collins was hard for any Democrat to beat, and Jackson beat her.</p>
+
+<H id="estimates">{T('estimates')}</H>
+<p>The chart collects every estimate of the moderate advantage from this page and from published work, before and after 2026.</p>
+<Figure id="fig-forest" caption="Filled dots are this page's estimates, hollow dots are published ones. Lines show a 95% interval or a published range; a dot without a line had no interval published. Positive numbers favour moderates.">
+  <ForestChart />
+  <table slot="table"><thead><tr><th>Estimate</th><th>Moderate advantage</th><th>Range or 95% interval</th><th>Source</th></tr></thead>
+    <tbody>{forest.flatMap((gr) => gr.rows).map((r) => <tr><td>{r.label}</td><td>{signed(r.est)}</td><td>{r.lo !== null && r.hi !== null ? interval(r.lo, r.hi) : 'not published'}</td><td>{r.own ? 'this page' : 'published'}</td></tr>)}</tbody></table>
+</Figure>
+<p>The pattern is consistent. Older studies found a large moderation premium. Andrew Hall's study of close primaries found that nominating the more extreme candidate cost a party 9 to 13 points of vote share (<a href="https://cambridge.org/core/services/aop-cambridge-core/content/view/ECAC69648AE0DF91D93103E18342B9D2/S0003055414000641a.pdf/what-happens-when-extremists-win-primaries.pdf">Hall 2015</a>). Hall and Daniel Thompson later traced most of that to the other party's voters turning out against the extremist (<a href="https://www.cambridge.org/core/product/366A518712BE9BCC1CB035BF53095D65">Hall and Thompson 2018</a>). Those studies measure vote share over 2006 to 2014, so they aren't on the chart's scale. Recent estimates are far smaller. Split Ticket put the Blue Dog edge at about 5 points for 2018 to 2024 (<a href="https://split-ticket.org/2025/03/17/are-moderates-more-electable/">Split Ticket</a>), Morris at 1 to 1.5 points for 2024, and Bonica and Grumbach at about zero (<a href="https://data4democracy.substack.com/p/do-moderates-do-better">Bonica and Grumbach</a>). The 2026 House numbers sit at the low end of that range. The statewide numbers sit higher.</p>
+<p>Even Chait frames the dispute as being "over how much of an advantage moderates have in winning elections, not which posture is more advantageous." On the evidence here, the answer is a few points, smaller than it used to be, and larger in statewide races than in House races.</p>
+
+<H id="primaries">{T('primaries')}</H>
+<p>If the gap is only a few points, why doesn't the party run progressives everywhere? Several reasons stack up.</p>
+<ul>
+<li><strong>A few points decides close seats.</strong> Primary voters and party groups in swing districts know a marginal seat can turn on 2 or 3 points, and many vote for the candidate they think is safer.</li>
+<li><strong>Swing-seat primary electorates are less left.</strong> Democratic primary voters outside safe blue cities tend to be older and more moderate. That alone favours moderate candidates there, before any money is spent.</li>
+<li><strong>Money and institutions back moderates in swing seats.</strong> The party's campaign committees and allied groups usually pick a candidate in target seats, and outside money follows. In Michigan's Senate primary, outside groups spent about $54 million supporting El-Sayed's rival Haley Stevens (<a href="https://www.pbs.org/newshour/politics/democrat-abdul-el-sayed-wins-election-to-u-s-senate-from-michigan">PBS</a>).</li>
+<li><strong>Progressive groups pick winnable primaries.</strong> Justice Democrats, DSA and similar groups mostly play in safe blue seats where a progressive can win the nomination. Midway through the 2018 primaries, FiveThirtyEight found Justice Democrats and Our Revolution endorsees had won 32 percent of their primaries, against 95 percent for the party committees' picks (<a href="https://fivethirtyeight.com/features/the-establishment-is-beating-the-progressive-wing-in-democratic-primaries-so-far">FiveThirtyEight</a>).</li>
+</ul>
+<p>When progressives did win swing-seat primaries this year, the results fit a small penalty. Villegas won CA-22 by about {Math.round(seatByCode('CA-22').margin)} points in a seat Trump carried. Lawrence had the weakest swing of Michigan's competitive House seats. LaKesha Womack had the smallest swing of North Carolina's five flips. Matt Dunlap lost the open ME-2 by {Math.abs(seatByCode('ME-02').margin).toFixed(1)} points and Justin Pearson lost a redrawn TN-9 by {Math.abs(seatByCode('TN-09').margin).toFixed(1)}. El-Sayed, Flanagan and Jackson won their Senate races while trailing comparable Democrats.</p>
+<p>The economic message also converged. Eric Blanc found the word "billionaire" on 25 of 32 Democratic Senate campaign websites in 2026, up from 6 of 32 in 2024 (<a href="https://www.thenation.com/article/politics/midterms-analysis-billionaires/">The Nation</a>). Moderates and progressives both ran on anti-elite economics. Where they still differed was on Medicare for All, ICE, Israel and trans issues.</p>
+
+<H id="money">{T('money')}</H>
+<p>A second argument runs alongside the first. Some progressives say the party establishment left their nominees to fend for themselves after the primaries. Rep. Ayanna Pressley, at an October rally for El-Sayed: "it is shameful that we are not seeing an equitable investment in progressive and diverse candidates like Abdul El-Sayed, like Angie Nixon, like Scott Colom" (<a href="https://x.com/neeratanden/status/2111221856501961005">quoted by the NYT</a>). Others answer that the establishment spent heavily on progressives while progressive groups spent little. Neera Tanden replied to Pressley: "Schumer has spent $35 million. How much has Sanders spent out of his $22 million warchest in Michigan?" Bill Scher's Washington Monthly piece was titled <a href="https://washingtonmonthly.com/2026/10/30/democrats-progressive-candidates-2026/">"Hey, Bernie, the Democratic Establishment Is Spending Big on Progressive Insurgents."</a></p>
+<p>Federal filings can settle most of this. I count as <em>party money</em> what the party committees and their allied super PACs spent: the DSCC and DCCC, and the Senate Majority PAC and House Majority PAC networks, including state-named affiliates such as WinSenate in Michigan. The figures below are independent expenditures for the general election from the FEC's bulk files, plus DCCC coordinated spending where noted. To compare states of very different size, Senate money is divided by each state's adult population and House money by votes cast. Two gaps remain until the post-election reports due December 3: campaign receipts and party coordinated spending after mid-October, including roughly $20 million of late DCCC spending, and issue ads, which never appear in FEC data.</p>
+
+<H id="senate-money" level={3}>{T('senate-money')}</H>
+<Figure id="fig-senate-money" legend={['moderate', 'progressive', 'mixed-unclear']} hint="Press to highlight"
+  caption="Contested Senate races, grouped by the Cook Political Report's final rating. The coloured mark is spending for the Democrat by the Senate Majority PAC network and the DSCC's independent spending. The grey tick is all outside spending against the Democrat. Both are general-election independent expenditures per adult resident (2024 voting-age population). Party coordinated spending is not included. The right column is the first as a share of the second.">
+  <span slot="legend" class="lg static"><svg width="14" height="16" viewBox="0 0 14 16" aria-hidden="true"><line x1="7" x2="7" y1="0" y2="16" class="against" /></svg>Spent against the Democrat</span>
+  <SenateMoneyChart />
+  <table slot="table"><thead><tr><th>Race</th><th>Rating</th><th>Faction</th><th>Party money for Democrat, per adult</th><th>All outside money against, per adult</th><th>Share matched</th></tr></thead>
+    <tbody>{senateMoneyRows.map((r) => <tr><td>{r.st} {r.dem}</td><td>{r.rating}</td><td>{FACTION[r.faction].label}</td><td>{usd(r.party)}</td><td>{usd(r.against)}</td><td>{r.against > 0.05 ? pct((r.party / r.against) * 100) : 'n/a'}</td></tr>)}</tbody></table>
+</Figure>
+<p>Where the party decided a Senate race was winnable, progressive nominees got large sums, and got them sooner than most moderates.</p>
+<ul>
+<li><strong>Maine.</strong> Troy Jackson got {millions(m('ME').partyTotal)} from the party network, about {usd(m('ME').party, 0)} per adult, the {ordinal(partyRank)} rate of any race.</li>
+<li><strong>Michigan.</strong> El-Sayed got {millions(m('MI').partyTotal)} counting every Senate Majority PAC affiliate. The often-quoted $46.5 million is WinSenate alone. On top of that, the DSCC spent $6.9 million in coordinated spending through mid-October. Party ads for him started 15 days after his primary.</li>
+<li><strong>Moderates waited longer.</strong> Jackson's party money started 37 days after his nomination. The other Toss-up Democrats waited 56 to 118 days, though most were nominated in spring and the party's spending generally started in late August.</li>
+</ul>
+<p>The critics have a point on the size of the match. Michigan is a big state and the other side spent heavily there, so El-Sayed's party money came to {usd(m('MI').party)} per adult. That covered only about {pct(share('MI'))} of the {millions(m('MI').againstTotal)} spent against him. Chris Pappas got {usd(m('NH').party)} per adult in New Hampshire, which covered {pct(share('NH'))} of the money against him. Moderates in Iowa and Kansas had about {pct((share('IA') + share('KS')) / 2)} covered.</p>
+<p>Peggy Flanagan got no party money in Minnesota, but neither side treated that race as close. Republican-aligned groups spent only about {millions(m('MN').againstTotal)} against her.</p>
+<p>Angie Nixon in Florida is the strongest case for the critics. The party network and the DSCC spent nothing for her independently. She lost by {(m('FL').repPct - m('FL').demPct).toFixed(1)} points. Other Democratic-aligned groups did spend about $11.8 million for her, so "Democrats gave her nothing" goes too far. The viral claim that "Schumer gave her $5,000" seems to mix up a $5,000 contribution from Kirsten Gillibrand's leadership PAC, filed August 27.</p>
+<p>Florida's size is part of the story. It has 18.8 million adults, so even Mississippi's thin {usd(m('MS').party, 0)} per adult would have cost about ${Math.round(18.8 * m('MS').party)} million there.</p>
+<p>Moderates were short-changed too.</p>
+<ul>
+<li>James Talarico got {usd(m('TX').party)} per adult against {usd(m('TX').against)} spent against him, the weakest match of any Toss-up race.</li>
+<li>Annie Andrews won South Carolina with {usd(m('SC').party)} per adult of party money.</li>
+<li>Scott Colom won Mississippi by {(m('MS').demPct - m('MS').repPct).toFixed(1)} points after a first party ad buy on October 21.</li>
+<li>Jamie Davis lost Louisiana by under 2 points with no national party money at all.</li>
+</ul>
+<p>If the party map shows a pattern beyond competitiveness, it is regional and racial: Black nominees in the Deep South and Florida (Nixon, Davis, Colom) got the least. Nixon said as much herself: "people are being very hesitant in terms of funding Black women, especially in the South." Filings show where money went, not why.</p>
+<p>Spending also has to be read against what a race usually costs. Counting everything spent in the race, Michigan cost 2.1 times its past Senate races per adult, about average for a Lean D race in 2026. Maine cost 1.9 times its past races. Minnesota cost three times its own cheap history but only about a quarter of the 2026 average for its rating. Texas cost nearly four times its history but a quarter of the Toss-up average, because the state is so large. Florida came in below its own history.</p>
+
+<H id="house-money" level={3}>{T('house-money')}</H>
+<Figure id="fig-house-money" legend={HOUSE_ROWS} hint="Press to highlight"
+  caption="Democratic challengers and open-seat nominees in seats rated Toss-up, Lean or Likely. Money is DCCC coordinated spending through mid-October plus House Majority PAC independent spending through Election Day, per vote cast. The blue tick is the moderate median in each row.">
+  <HouseMoneyChart />
+  <table slot="table"><thead><tr><th>Rating</th><th>Seat</th><th>Democrat</th><th>Faction</th><th>Party money per vote</th><th>Red to Blue</th><th>Result</th></tr></thead>
+    <tbody>{houseMoneyRows.map((r) => <tr><td>{r.rating}</td><td>{r.code}</td><td>{r.dem}</td><td>{FACTION[r.faction].label}</td><td>{usd(r.perVote)}</td><td>{r.redToBlue ? 'yes' : 'no'}</td><td>{r.won ? 'won' : 'lost'}</td></tr>)}</tbody></table>
+</Figure>
+<p>In the House, the progressive challengers in the closest seats got <em>more</em> party money per vote than the typical moderate. Villegas in CA-22 got about {usd(hm('CA-22').perVote, 0)} per vote cast, the highest of any seat. Lawrence in MI-7 got about {usd(hm('MI-07').perVote, 0)} and Dunlap in ME-2 about {usd(hm('ME-02').perVote, 0)}. Moderate challengers had medians of about {usd(houseMoneyMedian('Toss-up'), 0)} in Toss-up seats and {usd(houseMoneyMedian('Lean'), 0)} in Lean seats. A regression controlling for rating, 2024 margin and incumbency finds no penalty for the progressive flag. There are only {w(rtb.prog.n)} progressive challengers in competitive seats, so that is weak evidence either way.</p>
+<p>Tom Perriello in VA-5 and Justin Pearson in TN-9 got no House Majority PAC money, but neither did several moderates in similar reach seats. Some of their late DCCC money may also fall in the mid-October gap in the filings.</p>
+<p>The DCCC's reluctance showed in endorsements and timing more than in money.</p>
+<ul>
+<li>Its May picks in CA-22 and ME-2, Jasmeet Bains and Joe Baldacci, both lost their primaries to progressives.</li>
+<li>It added Villegas to its Red to Blue program on June 10, right after his primary (<a href="https://dccc.org/randy-villegas-added-to-dcccs-coveted-red-to-blue-program/">DCCC</a>).</li>
+<li>Dunlap waited two months. The Portland Press Herald's headline was "National Democrats finally back Matt Dunlap," and the paper reported the DCCC "had not been on good terms" with him (<a href="https://www.pressherald.com/2026/08/20/national-democrats-finally-back-matt-dunlap-in-his-race-against-paul-lepage/">Press Herald</a>).</li>
+<li>Lawrence was added six weeks after his primary. Hines in MI-10, a moderate nominated the same day, got in after one week.</li>
+</ul>
+<p>In the end, {rtb.prog.yes} of {rtb.prog.n} progressive challengers in competitive seats made Red to Blue, against {rtb.mod.yes} of {rtb.mod.n} moderates and {rtb.none.yes} of {rtb.none.n} nominees with no faction flag.</p>
+<p>The nominees nobody helped were mostly unflagged. I looked at seats Trump won by at least 5 points in 2024 where the 2026 race was decided by under 5 points. {nobodyHelped.n} of them got less than $1 per vote of outside help: {nobodyHelped.unflagged} nominees with no faction flag, {w(nobodyHelped.moderate)} moderates and {nobodyHelped.progressive === 0 ? 'no' : nobodyHelped.progressive} progressive-flagged nominee{nobodyHelped.progressive === 1 ? '' : 's'}. LaKesha Womack (NC-14) and Victoria Broderick (TN-4) are among them. Both call themselves progressive, but no progressive group endorsed either. Womack won on about {thousands(receipts('NC-14'))} raised. Broderick, on under $100,000, said: "I'm not angry that I didn't get support because I got to just pull off a complete upset" (<a href="https://wpln.org/post/this-tennessee-democrat-ousted-an-eight-term-congressman-with-less-than-100k/">WPLN</a>). These were seats nobody expected to be close, not snubs by faction.</p>
+
+<H id="progressive-groups" level={3}>{T('progressive-groups')}</H>
+<p>The Working Families Party was the only progressive group that spent real money on general elections. It put about $1.9 million into Michigan's Senate race, about $0.2 million into Florida's and $1.65 million across nine House seats. Justice Democrats, DSA, Our Revolution and the PCCC reported no independent spending in any general election between a Democrat and a Republican.</p>
+<p>In September a Democratic operative told <a href="https://www.axios.com/2026/09/22/senate-abdul-el-sayed-michigan-progressives">Axios</a> that "the so-called establishment wing of the Democratic Party is the only one spending for Abdul." Progressive leaders mostly helped by moving money into the party's own channels. Alexandria Ocasio-Cortez transferred $1 million on October 16 to a joint fund run by El-Sayed, the DSCC and the Michigan Democratic Party (<a href="https://gvwire.com/2026/10/16/ocasio-cortez-transfers-1-million-to-help-el-sayed-in-final-sprint-in-michigan/">NYT via GV Wire</a>).</p>
+<p>The heaviest factional spending came earlier. AIPAC's super PAC spent $20.1 million against El-Sayed in the primary but only $0.76 million in the general. The crypto industry's PAC spent $10.2 million against Juliana Stratton in Illinois's primary.</p>
+
+<H id="claims" level={3}>{T('claims')}</H>
+<div class="table-wrap claims-wrap"><table class="claims">
+<thead><tr><th>Claim</th><th>Made by</th><th>What the filings show</th></tr></thead>
+<tbody>
+<tr><td>The party didn't invest in progressive Senate nominees</td><td>Pressley, Nixon, many on X</td><td>True for Nixon in Florida, and for Flanagan in a race neither side contested. False for El-Sayed ({millions(m('MI').partyTotal)}) and Jackson ({millions(m('ME').partyTotal)}).</td></tr>
+<tr><td>The establishment is spending big on progressive insurgents</td><td>Bill Scher, Washington Monthly</td><td>Mostly true in target races. Villegas, Lawrence and Dunlap got more per vote than the moderate medians.</td></tr>
+<tr><td>Schumer spent $35 million while Sanders sat on his money</td><td>Neera Tanden</td><td>Roughly right as of mid-October. Senate Majority PAC's Michigan total was "nearly $35 million" (<a href="https://www.semafor.com/article/10/14/2026/top-democratic-super-pac-spends-more-in-michigan-maine">Semafor</a>). Progressive groups spent little in the general, though AOC moved $1M the same day.</td></tr>
+<tr><td>Schumer gave Nixon only $5,000</td><td>Viral posts</td><td>Probably a mix-up. The $5,000 on file is from Gillibrand's leadership PAC. The party network spent nothing for Nixon independently.</td></tr>
+<tr><td>Progressive groups left their nominees on their own</td><td>Axios source, Tanden</td><td>Largely true in money terms. Only the Working Families Party spent meaningfully.</td></tr>
+<tr><td>The money followed ideology</td><td>Implied by both sides</td><td>Not supported. It followed the party's target map. Moderates such as Talarico, Andrews and Colom also got little, and Black nominees in the South got the least.</td></tr>
+</tbody></table></div>
+<p>Download the money data: <a href="data/senate_money_2026.csv">Senate (CSV)</a> and <a href="data/house_money_2026.csv">House (CSV)</a>. Each row notes the coverage date of its figures.</p>
+
+<H id="hasan">{T('hasan')}</H>
+<p>Hasan is right that raw margin comparisons between states mislead, that opponent quality and money mattered, and that progressives won Republican seats that early takes skipped. He is wrong that the centrist claim is baseless. Its strongest version, that moderates run a few points better seat for seat, holds up statewide and plausibly in the House. Benson and Klobuchar faced the same money, media and state mood on the same ballots as El-Sayed and Flanagan, and still ran ahead.</p>
+<p>The centrist claim overreaches too. Moderates did win most of the flips, but they won them on a wave that lifted everyone. Their edge decided perhaps a handful of seats this year. The fair summary is that moderates have a modest, shrinking advantage. It mattered little in 2026, and it would matter much more in a close year.</p>
+
+<H id="data">{T('data')}</H>
+<p>Download the data: <a href="data/house_2026.csv">House races (CSV)</a> and <a href="data/statewide_2026.csv">Senate and governor races (CSV)</a>. Each row lists its sources. The page checks once a day for new counts and filings and rebuilds when anything changes; an open page offers a reload when a newer version is out.</p>
+<ul>
+<li><strong>Results</strong> come from AP counts on NBC News pages. They are unofficial until certified. In the current data, {uncounted} House seats are under 95 percent counted and {uncalled} are uncalled. California's late ballots usually lean Democratic and many progressives sit there, so final results may shift the House numbers slightly toward progressives.</li>
+<li><strong>2024 presidential margins</strong> by district come from <a href="https://www.the-downballot.com/p/the-downballots-calculations-of-presidential">The Downballot's calculations</a> for the 2026 maps, which matters in California, Texas, North Carolina, Missouri, Ohio, Tennessee and Utah, where lines changed.</li>
+<li><strong>Faction flags</strong> come from published endorsement lists and caucus rosters. No complete DSA, Our Revolution or WelcomePAC list exists, so some endorsees are missed, mostly long-shot challengers. {seats.filter((s) => s.faction === 'both').length} nominees carry both flags.</li>
+<li><strong>House models</strong> are ordinary least squares with heteroskedasticity-robust (HC1) standard errors and normal-approximation 95% intervals. Hispanic and college shares come from the 2024 American Community Survey and are only available for the {seats.filter((s) => s.hisp !== null && s.ba !== null).length} seats in states that kept their maps.</li>
+<li><strong>Statewide coding</strong> uses Sanders and left-group endorsements and positions on Medicare for All, ICE, Israel and trans issues. James Talarico, Jon Ossoff and Sherrod Brown are coded mixed or unclear. The statewide model uses classical standard errors and rests on {w(statewideModel.nProg)} progressive nominees, so treat it as rough.</li>
+<li><strong>Missing evidence.</strong> No validated-voter or precinct study of 2026 exists yet. Those will separate turnout from persuasion.</li>
+</ul>
+
+<H id="sources">{T('sources')}</H>
+<ul class="sources">
+<li>Mehdi Hasan, <a href="https://x.com/mehdirhasan/status/2121382704105267425">Zeteo video on X</a>, November 13, 2026</li>
+<li>Jonathan Chait, "The Left's Election Denial," The Atlantic, November 11, 2026 (<a href="https://archive.ph/20261112201741/https://www.theatlantic.com/ideas/2026/11/moderates-midterms-success-progressives/689371/">archived copy</a>)</li>
+<li>Lakshya Jain, <a href="https://www.theargumentmag.com/p/do-moderates-still-have-an-electability">"Do moderates still have an electability advantage?"</a>, The Argument, November 12, 2026</li>
+<li>Center for Working-Class Politics, <a href="https://cwcp.substack.com/p/ideological-endorsements-mostly-didnt">post-election analysis</a>, November 10, 2026</li>
+<li>Aaron Blake, <a href="https://www.cnn.com/2026/11/06/politics/far-left-democrats-midterm-election">CNN analysis</a> with G. Elliott Morris's faction numbers, November 6, 2026</li>
+<li>Third Way, <a href="https://www.thirdway.org/memo/moderates-made-democratic-majorities">"Moderates Made Democratic Majorities"</a></li>
+<li>Adam Bonica, <a href="https://data4democracy.substack.com/p/parties-are-electable-not-candidates">"Parties are electable, not candidates"</a></li>
+<li>Eric Blanc, <a href="https://www.thenation.com/article/politics/midterms-analysis-billionaires/">The Nation</a></li>
+<li>Washington Post and Schar School Michigan poll, September 17, 2026 (<a href="https://archive.ph/20261030013825/https://www.washingtonpost.com/politics/2026/09/17/michigan-senate-race-poll-finds-abdul-el-sayed-has-narrow-edge-over-mike-rogers/">archived copy</a>)</li>
+<li>VoteLog outside spending: <a href="https://votelog.org/investigations/michigan-senate-general-money">Michigan</a>, <a href="https://votelog.org/investigations/north-carolina-senate-general-money">North Carolina</a>, <a href="https://votelog.org/investigations/minnesota-senate-general-money">Minnesota</a></li>
+<li>Party money: FEC bulk data (<a href="https://www.fec.gov/data/browse-data/?tab=bulk-data">independent expenditures, candidate and committee files</a>); <a href="https://washingtonmonthly.com/2026/10/30/democrats-progressive-candidates-2026/">Washington Monthly</a>; <a href="https://www.semafor.com/article/10/14/2026/top-democratic-super-pac-spends-more-in-michigan-maine">Semafor</a>; <a href="https://www.axios.com/2026/09/22/senate-abdul-el-sayed-michigan-progressives">Axios</a>; <a href="https://www.pressherald.com/2026/08/20/national-democrats-finally-back-matt-dunlap-in-his-race-against-paul-lepage/">Portland Press Herald</a>; <a href="https://dccc.org/randy-villegas-added-to-dcccs-coveted-red-to-blue-program/">DCCC</a>; <a href="https://wpln.org/post/this-tennessee-democrat-ousted-an-eight-term-congressman-with-less-than-100k/">WPLN</a>; <a href="https://gvwire.com/2026/10/16/ocasio-cortez-transfers-1-million-to-help-el-sayed-in-final-sprint-in-michigan/">GV Wire</a></li>
+<li><a href="https://www.brookings.edu/articles/how-democrats-won-big-and-why-2028-remains-an-open-question/">Brookings</a> on the 2026 result; <a href="https://michiganadvance.com/?p=115713">Stateline</a> on turnout and switching; <a href="https://www.ajc.com/news/2026/11/latino-voters-swing-left-in-midterm-elections-lifting-democrats-to-big-wins-in-texas-and-nationwide/">AP via the AJC</a> on Latino voters; <a href="https://www.clickondetroit.com/news/politics/2026/11/04/how-trump-and-republicans-lost-the-2026-midterm-elections-according-to-the-ap-voter-poll/">AP Voter Poll</a></li>
+<li>Andrew Hall, <a href="https://cambridge.org/core/services/aop-cambridge-core/content/view/ECAC69648AE0DF91D93103E18342B9D2/S0003055414000641a.pdf/what-happens-when-extremists-win-primaries.pdf">"What Happens When Extremists Win Primaries?"</a>, APSR 2015; Hall and Thompson, <a href="https://www.cambridge.org/core/product/366A518712BE9BCC1CB035BF53095D65">APSR 2018</a></li>
+<li>Split Ticket, <a href="https://split-ticket.org/2025/03/17/are-moderates-more-electable/">"Are moderates more electable?"</a>, 2025; Bonica and Grumbach, <a href="https://data4democracy.substack.com/p/do-moderates-do-better">"Do moderates do better?"</a></li>
+<li>FiveThirtyEight, <a href="https://fivethirtyeight.com/features/the-establishment-is-beating-the-progressive-wing-in-democratic-primaries-so-far">2018 primary scorecard</a>; <a href="https://www.pbs.org/newshour/politics/democrat-abdul-el-sayed-wins-election-to-u-s-senate-from-michigan">PBS</a> on the Michigan primary</li>
+<li>Results: AP via <a href="https://www.nbcnews.com/politics/2026-elections">NBC News</a> district and state pages; Wikipedia race pages for statewide results; <a href="https://www.the-downballot.com/p/the-downballots-calculations-of-presidential">The Downballot</a> for 2024 results by district</li>
+</ul>
+</Base>

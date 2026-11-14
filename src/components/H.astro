@@ -1,0 +1,7 @@
+---
+// A section heading with a button that copies a link to it.
+interface Props { id: string; level?: 2 | 3 }
+const { id, level = 2 } = Astro.props;
+const Tag = level === 2 ? 'h2' : 'h3';
+---
+<Tag id={id}><slot /><button class="anchor" type="button" data-anchor={id} aria-label="Copy link to this section" title="Copy link to this section"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M6.5 9.5l3-3M7 4.5l1.2-1.2a2.8 2.8 0 014 4L11 8.5M9 11.5l-1.2 1.2a2.8 2.8 0 01-4-4L5 7.5"/></svg></button></Tag>

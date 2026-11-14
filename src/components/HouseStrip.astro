@@ -1,0 +1,46 @@
+---
+// One row per faction, one jittered dot per House nominee on a shared x axis.
+// stat="mean": mean with its 95% interval (the text compares averages).
+// stat="median": median tick (describes where nominees ran).
+import { scaleLinear } from 'd3';
+import Mark from './Mark.astro';
+import XAxis from './XAxis.astro';
+import { seats, houseGroups, type Seat } from '../lib/analysis';
+import { FACTION, HOUSE_ROWS } from '../lib/factions';
+import { signed, jitter } from '../lib/format';
+
+interface Props {
+  field: 'overperf' | 'pres24'; domain: [number, number]; step: number; axisLabel: string; title: string; desc: string;
+  stat: 'mean' | 'median'; band?: [number, number, string];
+}
+const { field, domain, step, axisLabel, title, desc, stat, band } = Astro.props;
+const W = 720, ML = 150, MR = 24, rowH = 62, top = band ? 26 : 12;
+const h = top + rowH * HOUSE_ROWS.length + 48;
+const x = scaleLinear().domain(domain).range([ML, W - MR]).clamp(true);
+const tip = (s: Seat) => `${s.code}: ${s.dem} (D) vs ${s.rep} (R). 2026 margin ${signed(s.margin)}, 2024 presidential ${signed(s.pres24)}, ran ${signed(s.overperf)} ahead of Harris`;
+---
+<svg viewBox={`0 0 ${W} ${h}`} role="img" aria-label={title}>
+  <desc>{desc}</desc>
+  {band && <>
+    <rect x={x(band[0])} y={top} width={x(band[1]) - x(band[0])} height={rowH * HOUSE_ROWS.length} class="band" />
+    <text x={(x(band[0]) + x(band[1])) / 2} y={top - 8} class="note" text-anchor="middle">{band[2]}</text>
+  </>}
+  <XAxis x={x} y0={top} y1={top + rowH * HOUSE_ROWS.length} step={step} format={(v) => signed(v, 0)} label={axisLabel} />
+  {HOUSE_ROWS.map((f, i) => {
+    const g = houseGroups.find((g) => g.faction === f)!;
+    const cy = top + rowH * i + rowH / 2;
+    const rows = seats.filter((s) => s.faction === f);
+    const centre = stat === 'mean' ? g.over.mean : field === 'pres24' ? g.presMedian : g.overMedian;
+    return (
+      <g>
+        <text x={ML - 12} y={cy - 4} class="row-label" text-anchor="end">{FACTION[f].label}</text>
+        <text x={ML - 12} y={cy + 12} class="row-sub" text-anchor="end">
+          {stat === 'mean' ? `n=${g.n}, mean ${signed(g.over.mean)}` : `n=${g.n}, median ${signed(centre)}`}
+        </text>
+        {rows.map((s) => <Mark faction={f} x={x(s[field])} y={cy + jitter(s.code, rowH * 0.32)} r={3.4} tip={tip(s)} k={s.code} />)}
+        {stat === 'mean' && <rect x={x(g.over.lo)} y={cy - 3} width={Math.max(2, x(g.over.hi) - x(g.over.lo))} height={6} class="ci-band" />}
+        <line x1={x(centre)} x2={x(centre)} y1={cy - rowH * 0.42} y2={cy + rowH * 0.42} class="median" />
+      </g>
+    );
+  })}
+</svg>

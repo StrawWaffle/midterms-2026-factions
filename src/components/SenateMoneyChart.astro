@@ -1,0 +1,44 @@
+---
+// Contested Senate races by rating: party-network money for the Democrat (faction mark)
+// against all outside money spent against the Democrat (grey tick), both per adult resident.
+import { scaleLinear } from 'd3';
+import Mark from './Mark.astro';
+import XAxis from './XAxis.astro';
+import { senateMoneyRows } from '../lib/analysis';
+import { FACTION } from '../lib/factions';
+import { usd, pct } from '../lib/format';
+
+const W = 720, left = 190, top = 22, row = 30, gap = 22;
+const groups: { rating: string; rows: typeof senateMoneyRows }[] = [];
+for (const r of senateMoneyRows) {
+  if (!groups.length || groups[groups.length - 1].rating !== r.rating) groups.push({ rating: r.rating, rows: [] });
+  groups[groups.length - 1].rows.push(r);
+}
+const yEnd = top + groups.reduce((s, g) => s + gap + row * g.rows.length, 0);
+const h = yEnd + 44;
+const x = scaleLinear().domain([0, 90]).range([left, W - 70]).clamp(true);
+let y = top;
+const placed = groups.map((g) => {
+  const gy = y; y += gap;
+  const rows = g.rows.map((r) => { const cy = y + row / 2; y += row; return { r, cy }; });
+  return { rating: g.rating, gy, rows };
+});
+---
+<svg viewBox={`0 0 ${W} ${h}`} role="img" aria-label="Party money for the Democrat against money spent against them, Senate 2026">
+  <desc>For each contested Senate race, party-network spending for the Democrat per adult and all outside spending against the Democrat per adult, with the share matched.</desc>
+  <XAxis x={x} y0={top} y1={yEnd} step={10} format={(v) => `$${v}`} label="Outside money per adult in the state, general election (US dollars)" />
+  <text x={W - 8} y={top - 8} class="row-sub" text-anchor="end">party share</text>
+  {placed.map((g) => <>
+    <text x="8" y={g.gy + 15} class="group-label">{g.rating}</text>
+    {g.rows.map(({ r, cy }) => <>
+      <text x="18" y={cy + 4} class="row-label-sm">{r.st} · {r.dem}</text>
+      <line x1={x(r.party)} x2={x(r.against)} y1={cy} y2={cy} class="connector thin" />
+      <line x1={x(r.against)} x2={x(r.against)} y1={cy - 8} y2={cy + 8} class="against" />
+      <rect x={x(r.against) - 6} y={cy - 10} width="12" height="20" fill="transparent" class="mk" data-key={r.key}
+        data-tip={`${r.st}: ${usd(r.against)} per adult spent against ${r.dem} by outside groups`} />
+      <Mark faction={r.faction} x={x(r.party)} y={cy} r={4.8} k={r.key}
+        tip={`${r.st}: ${usd(r.party)} per adult from the party network for ${r.dem} (${FACTION[r.faction].label.toLowerCase()})`} />
+      <text x={W - 8} y={cy + 4} class="value" text-anchor="end">{r.against > 0.05 ? pct((r.party / r.against) * 100) : 'n/a'}</text>
+    </>)}
+  </>)}
+</svg>

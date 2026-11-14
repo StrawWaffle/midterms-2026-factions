@@ -1,0 +1,33 @@
+---
+// Every estimate of the moderate advantage: filled = this page's own, hollow = published.
+// Lines are 95% intervals or published ranges; no line means no interval was published.
+import { scaleLinear } from 'd3';
+import XAxis from './XAxis.astro';
+import { forest } from '../lib/analysis';
+import { signed, interval } from '../lib/format';
+
+const W = 720, top = 8, row = 30, left = 330;
+const n = forest.reduce((s, g) => s + 1 + g.rows.length, 0);
+const yEnd = top + row * n;
+const h = yEnd + 46;
+const x = scaleLinear().domain([-8, 14]).range([left, W - 24]).clamp(true);
+let y = top;
+const placed = forest.map((g) => {
+  const gy = y; y += row;
+  const rows = g.rows.map((r) => { const cy = y + row / 2; y += row; return { ...r, cy }; });
+  return { group: g.group, gy, rows };
+});
+---
+<svg viewBox={`0 0 ${W} ${h}`} role="img" aria-label="Estimates of the moderate advantage">
+  <desc>Each row is one estimate of how many points of margin a moderate gains over a progressive. Filled dots are this page's estimates, hollow dots published ones; lines are 95% intervals or published ranges.</desc>
+  <XAxis x={x} y0={top} y1={yEnd} step={2} format={(v) => signed(v, 0)} label="Moderate advantage, points of margin (left of 0: progressives did better)" />
+  {placed.map((g) => <>
+    <text x="8" y={g.gy + row * 0.65} class="group-label">{g.group}</text>
+    {g.rows.map((r) => <>
+      <text x="18" y={r.cy + 4} class="row-label-sm">{r.label}</text>
+      {r.lo !== null && r.hi !== null && <line x1={x(r.lo)} x2={x(r.hi)} y1={r.cy} y2={r.cy} class="ci" />}
+      <circle cx={x(r.est)} cy={r.cy} r="5" class="mk" fill={r.own ? 'var(--ink)' : 'var(--surface)'} style="stroke:var(--ink);stroke-width:1.6"
+        data-tip={r.own ? `${signed(r.est)} (95% interval ${interval(r.lo!, r.hi!)})` : r.note} />
+    </>)}
+  </>)}
+</svg>
