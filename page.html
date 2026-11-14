@@ -88,6 +88,8 @@ svg text { fill: var(--ink-2); font-family: inherit; }
 .median { stroke: var(--ink); stroke-width: 2; }
 .fit { stroke: var(--ink-2); stroke-width: 1.5; stroke-dasharray: 5 4; }
 .connector { stroke: var(--ink-2); stroke-width: 2; }
+.connector.thin { stroke: var(--grid); stroke-width: 2; }
+.against { stroke: var(--ink-2); stroke-width: 2.5; }
 .ci { stroke: var(--ink); stroke-width: 2; }
 .mk { stroke: var(--surface); stroke-width: 1; cursor: default; }
 circle.mk[fill="none"] { stroke-width: 1.6; }
@@ -122,6 +124,7 @@ th { font-weight: 600; position: sticky; top: 0; background: var(--surface); }
 
 <div class="answer">
 <p><strong>Short answer.</strong> The wave came from the national environment, and it lifted every faction by about 15 points. Moderates do run somewhat better than progressives in the same kind of seat, by about 0 to 3 points in House races and about 2 to 6 points statewide. That gap is real but small next to the wave. Moderates won most of the seats Democrats flipped mainly because moderates were the nominees in most of the seats that could flip. In this wave, a 3-point handicap would have reversed {{N_CLOSE}} of the {{N_FLIPS}} flips. In a close year it would decide far more.</p>
+<p>On the money fight: party groups funded progressive nominees about as heavily as moderates in the races they targeted, and skipped moderates and progressives alike in the races they didn't. Progressive groups themselves spent very little in general elections. <a href="#money">Details below.</a></p>
 </div>
 
 <nav aria-label="Contents">
@@ -135,6 +138,7 @@ th { font-weight: 600; position: sticky; top: 0; background: var(--surface); }
 <li><a href="#statewide">Statewide, progressives ran a few points behind</a></li>
 <li><a href="#estimates">Every estimate in one place</a></li>
 <li><a href="#primaries">Why progressives rarely win swing-seat primaries</a></li>
+<li><a href="#money">Did the party back its progressive nominees?</a></li>
 <li><a href="#hasan">What this means for Hasan's argument</a></li>
 <li><a href="#data">Data, method and limits</a></li>
 <li><a href="#sources">Sources</a></li>
@@ -213,6 +217,64 @@ th { font-weight: 600; position: sticky; top: 0; background: var(--surface); }
 </ul>
 <p>When progressives did win swing-seat primaries this year, the results fit a small penalty. Villegas won CA-22 by about 36 points in a seat Trump carried. Lawrence had the weakest swing of Michigan's competitive House seats. LaKesha Womack had the smallest swing of North Carolina's five flips. Matt Dunlap lost the open ME-2 by 1.6 points and Justin Pearson lost a redrawn TN-9 by 1.1. El-Sayed, Flanagan and Jackson won their Senate races while trailing comparable Democrats.</p>
 <p>The economic message also converged. Eric Blanc found the word "billionaire" on 25 of 32 Democratic Senate campaign websites in 2026, up from 6 of 32 in 2024 (<a href="https://www.thenation.com/article/politics/midterms-analysis-billionaires/">The Nation</a>). Moderates and progressives both ran on anti-elite economics. Where they still differed was on Medicare for All, ICE, Israel and trans issues.</p>
+
+<h2 id="money">Did the party back its progressive nominees?</h2>
+<p>A second argument runs alongside the first. Some progressives say the party establishment left their nominees to fend for themselves after the primaries. Rep. Ayanna Pressley, at an October rally for El-Sayed: "it is shameful that we are not seeing an equitable investment in progressive and diverse candidates like Abdul El-Sayed, like Angie Nixon, like Scott Colom" (<a href="https://x.com/neeratanden/status/2111221856501961005">quoted by the NYT</a>). Others answer that the establishment spent heavily on progressives while progressive groups spent little. Neera Tanden replied to Pressley: "Schumer has spent $35 million. How much has Sanders spent out of his $22 million warchest in Michigan?" Bill Scher's Washington Monthly piece was titled <a href="https://washingtonmonthly.com/2026/10/30/democrats-progressive-candidates-2026/">"Hey, Bernie, the Democratic Establishment Is Spending Big on Progressive Insurgents."</a></p>
+<p>Federal filings can settle most of this. I count as <em>party money</em> what the party committees and their allied super PACs spent: the DSCC and DCCC, and the Senate Majority PAC and House Majority PAC networks, including state-named affiliates such as WinSenate in Michigan. The figures below are independent expenditures for the general election from the FEC's bulk files through November 12, plus DCCC coordinated spending where noted. To compare states of very different size, Senate money is divided by each state's adult population and House money by votes cast. Two gaps remain until the post-election reports due December 3: campaign receipts and party coordinated spending after mid-October, including roughly $20 million of late DCCC spending, and issue ads, which never appear in FEC data.</p>
+
+<h3>Senate: the money followed the target map</h3>
+{{FIG_SEN_MONEY}}
+<p>Where the party decided a Senate race was winnable, progressive nominees got large sums, and got them sooner than most moderates.</p>
+<ul>
+<li><strong>Maine.</strong> Troy Jackson got $38.1 million from the party network, about $33 per adult, the second-highest rate of any race.</li>
+<li><strong>Michigan.</strong> El-Sayed got $54.8 million counting every Senate Majority PAC affiliate. The often-quoted $46.5 million is WinSenate alone. On top of that, the DSCC spent $6.9 million in coordinated spending through mid-October. Party ads for him started 15 days after his primary.</li>
+<li><strong>Moderates waited longer.</strong> Jackson's party money started 37 days after his nomination. The other Toss-up Democrats waited 56 to 118 days, though most were nominated in spring and the party's spending generally started in late August.</li>
+</ul>
+<p>The critics have a point on the size of the match. Michigan is a big state and the other side spent heavily there, so El-Sayed's party money came to $6.83 per adult. That covered only about a third of the $171 million spent against him. Chris Pappas got $14.83 per adult in New Hampshire, which covered 45 percent of the money against him. Moderates in Iowa and Kansas had about 70 percent covered.</p>
+<p>Peggy Flanagan got no party money in Minnesota, but neither side treated that race as close. Republican-aligned groups spent only about $2.7 million against her.</p>
+<p>Angie Nixon in Florida is the strongest case for the critics. The party network and the DSCC spent nothing for her independently. She lost by 2.9 points. Other Democratic-aligned groups did spend about $11.8 million for her, so "Democrats gave her nothing" goes too far. The viral claim that "Schumer gave her $5,000" seems to mix up a $5,000 contribution from Kirsten Gillibrand's leadership PAC, filed August 27.</p>
+<p>Florida's size is part of the story. It has 18.8 million adults, so even Mississippi's thin $1 per adult would have cost about $19 million there.</p>
+<p>Moderates were short-changed too.</p>
+<ul>
+<li>James Talarico got $1.96 per adult against $13.43 spent against him, the weakest match of any Toss-up race.</li>
+<li>Annie Andrews won South Carolina with $0.18 per adult of party money.</li>
+<li>Scott Colom won Mississippi by 0.8 points after a first party ad buy on October 21.</li>
+<li>Jamie Davis lost Louisiana by under 2 points with no national party money at all.</li>
+</ul>
+<p>If the party map shows a pattern beyond competitiveness, it is regional and racial: Black nominees in the Deep South and Florida (Nixon, Davis, Colom) got the least. Nixon said as much herself: "people are being very hesitant in terms of funding Black women, especially in the South." Filings show where money went, not why.</p>
+<p>Spending also has to be read against what a race usually costs. Counting everything spent in the race, Michigan cost 2.1 times its past Senate races per adult, about average for a Lean D race in 2026. Maine cost 1.9 times its past races. Minnesota cost three times its own cheap history but only about a quarter of the 2026 average for its rating. Texas cost nearly four times its history but a quarter of the Toss-up average, because the state is so large. Florida came in below its own history.</p>
+
+<h3>House: progressives in target seats got more, not less</h3>
+{{FIG_HOUSE_MONEY}}
+<p>In the House, the progressive challengers in the closest seats got <em>more</em> party money per vote than the typical moderate. Villegas in CA-22 got about $73 per vote cast, the highest of any seat. Lawrence in MI-7 got about $40 and Dunlap in ME-2 about $30. Moderate challengers had medians of about $20 in Toss-up seats and $14 in Lean seats. A regression controlling for rating, 2024 margin and incumbency finds no penalty for the progressive flag. There are only six progressive challengers in competitive seats, so that is weak evidence either way.</p>
+<p>Tom Perriello in VA-5 and Justin Pearson in TN-9 got no House Majority PAC money, but neither did several moderates in similar reach seats. Some of their late DCCC money may also fall in the mid-October gap in the filings.</p>
+<p>The DCCC's reluctance showed in endorsements and timing more than in money.</p>
+<ul>
+<li>Its May picks in CA-22 and ME-2, Jasmeet Bains and Joe Baldacci, both lost their primaries to progressives.</li>
+<li>It added Villegas to its Red to Blue program on June 10, right after his primary (<a href="https://dccc.org/randy-villegas-added-to-dcccs-coveted-red-to-blue-program/">DCCC</a>).</li>
+<li>Dunlap waited two months. The Portland Press Herald's headline was "National Democrats finally back Matt Dunlap," and the paper reported the DCCC "had not been on good terms" with him (<a href="https://www.pressherald.com/2026/08/20/national-democrats-finally-back-matt-dunlap-in-his-race-against-paul-lepage/">Press Herald</a>).</li>
+<li>Lawrence was added six weeks after his primary. Hines in MI-10, a moderate nominated the same day, got in after one week.</li>
+</ul>
+<p>In the end, 5 of 6 progressive challengers in competitive seats made Red to Blue, against 34 of 46 moderates and 1 of 22 nominees with no faction flag.</p>
+<p>The nominees nobody helped were mostly unflagged. I looked at seats Trump won by at least 5 points in 2024 where the 2026 race was decided by under 5 points. 34 of them got less than $1 per vote of outside help: 31 nominees with no faction flag, 3 moderates and no progressive-flagged nominee. LaKesha Womack (NC-14) and Victoria Broderick (TN-4) are among them. Both call themselves progressive, but no progressive group endorsed either. Womack won on about $59,000 raised. Broderick, on under $100,000, said: "I'm not angry that I didn't get support because I got to just pull off a complete upset" (<a href="https://wpln.org/post/this-tennessee-democrat-ousted-an-eight-term-congressman-with-less-than-100k/">WPLN</a>). These were seats nobody expected to be close, not snubs by faction.</p>
+
+<h3>Progressive groups barely spent in general elections</h3>
+<p>The Working Families Party was the only progressive group that spent real money on general elections. It put about $1.9 million into Michigan's Senate race, about $0.2 million into Florida's and $1.65 million across nine House seats. Justice Democrats, DSA, Our Revolution and the PCCC reported no independent spending in any general election between a Democrat and a Republican.</p>
+<p>In September a Democratic operative told <a href="https://www.axios.com/2026/09/22/senate-abdul-el-sayed-michigan-progressives">Axios</a> that "the so-called establishment wing of the Democratic Party is the only one spending for Abdul." Progressive leaders mostly helped by moving money into the party's own channels. Alexandria Ocasio-Cortez transferred $1 million on October 16 to a joint fund run by El-Sayed, the DSCC and the Michigan Democratic Party (<a href="https://gvwire.com/2026/10/16/ocasio-cortez-transfers-1-million-to-help-el-sayed-in-final-sprint-in-michigan/">NYT via GV Wire</a>).</p>
+<p>The heaviest factional spending came earlier. AIPAC's super PAC spent $20.1 million against El-Sayed in the primary but only $0.76 million in the general. The crypto industry's PAC spent $10.2 million against Juliana Stratton in Illinois's primary.</p>
+
+<h3>How the claims hold up</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Claim</th><th>Made by</th><th>What the filings show</th></tr></thead>
+<tbody>
+<tr><td>The party didn't invest in progressive Senate nominees</td><td>Pressley, Nixon, many on X</td><td>True for Nixon in Florida, and for Flanagan in a race neither side contested. False for El-Sayed ($54.8M) and Jackson ($38.1M).</td></tr>
+<tr><td>The establishment is spending big on progressive insurgents</td><td>Bill Scher, Washington Monthly</td><td>Mostly true in target races. Villegas, Lawrence and Dunlap got more per vote than the moderate medians.</td></tr>
+<tr><td>Schumer spent $35 million while Sanders sat on his money</td><td>Neera Tanden</td><td>Roughly right as of mid-October. Senate Majority PAC's Michigan total was "nearly $35 million" (<a href="https://www.semafor.com/article/10/14/2026/top-democratic-super-pac-spends-more-in-michigan-maine">Semafor</a>). Progressive groups spent little in the general, though AOC moved $1M the same day.</td></tr>
+<tr><td>Schumer gave Nixon only $5,000</td><td>Viral posts</td><td>Probably a mix-up. The $5,000 on file is from Gillibrand's leadership PAC. The party network spent nothing for Nixon independently.</td></tr>
+<tr><td>Progressive groups left their nominees on their own</td><td>Axios source, Tanden</td><td>Largely true in money terms. Only the Working Families Party spent meaningfully.</td></tr>
+<tr><td>The money followed ideology</td><td>Implied by both sides</td><td>Not supported. It followed the party's target map. Moderates such as Talarico, Andrews and Colom also got little, and Black nominees in the South got the least.</td></tr>
+</tbody></table></div>
+<p>Download the money data: <a href="data/senate_money_2026.csv">Senate (CSV)</a> and <a href="data/house_money_2026.csv">House (CSV)</a>. Each row notes the coverage date of its figures.</p>
 
 <h2 id="hasan">What this means for Hasan's argument</h2>
 <p>Hasan is right that raw margin comparisons between states mislead, that opponent quality and money mattered, and that progressives won Republican seats that early takes skipped. He is wrong that the centrist claim is baseless. Its strongest version, that moderates run a few points better seat for seat, holds up statewide and plausibly in the House. Benson and Klobuchar faced the same money, media and state mood on the same ballots as El-Sayed and Flanagan, and still ran ahead.</p>

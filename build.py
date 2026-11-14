@@ -299,6 +299,100 @@ def forest(rows):
                "filled dots are this page's own estimates, hollow dots published ones; lines are ranges or 95% intervals.")
 
 
+# ---------------------------------------------------------------- money charts
+
+MONEY_FACTION = {"progressive": "progressive", "moderate": "moderate", "mixed-unclear": "mixed-unclear"}
+RATING_ORDER = ["Tossup", "Lean D", "Likely D", "Lean R", "Likely R"]
+
+
+def load_money():
+    sen = [r for r in csv.DictReader(open(HERE / "data/senate_money_2026.csv", encoding="utf-8"))
+           if r["office"].startswith("Senate") and r["cook_final"] in RATING_ORDER and r["faction"] in MONEY_FACTION]
+    house = list(csv.DictReader(open(HERE / "data/house_money_2026.csv", encoding="utf-8")))
+    return sen, house
+
+
+def senate_money_chart(sen):
+    rows = sorted(sen, key=lambda r: (RATING_ORDER.index(r["cook_final"]), -float(r["party_pro_dem_per_vap"])))
+    lo, hi = 0, 90
+    left, top, row, gap = 190, 22, 30, 22
+    groups = []
+    for r in rows:
+        if not groups or groups[-1][0] != r["cook_final"]:
+            groups.append((r["cook_final"], []))
+        groups[-1][1].append(r)
+    h = top + sum(gap + row * len(g) for _, g in groups) + 44
+    sx = scale(lo, hi, left, W - 70)
+    body = [f'<text x="{W - 8}" y="{top - 8}" class="row-sub" text-anchor="end">party share</text>']
+    y = top
+    plot_top = top
+    out_rows = []
+    for rating, items in groups:
+        body.append(f'<text x="8" y="{y + 15:.1f}" class="group-label">{esc(rating)}</text>')
+        y += gap
+        for r in items:
+            cy = y + row / 2
+            party, against = float(r["party_pro_dem_per_vap"]), float(r["against_dem_total_per_vap"])
+            label, color, shape = FACTION[MONEY_FACTION[r["faction"]]]
+            body.append(f'<text x="18" y="{cy + 4:.1f}" class="row-label-sm">{esc(r["st"])} · {esc(r["democrat"])}</text>')
+            body.append(f'<line x1="{sx(party):.1f}" x2="{sx(min(against, hi)):.1f}" y1="{cy:.1f}" y2="{cy:.1f}" class="connector thin"/>')
+            ax = sx(min(against, hi))
+            body.append(f'<line x1="{ax:.1f}" x2="{ax:.1f}" y1="{cy - 8:.1f}" y2="{cy + 8:.1f}" class="against"/>')
+            body.append(f'<rect x="{ax - 6:.1f}" y="{cy - 10:.1f}" width="12" height="20" fill="transparent" '
+                        f'data-tip="{esc(r["st"])}: ${against:.2f} per adult spent against {esc(r["democrat"])} by outside groups" tabindex="0"/>')
+            body.append(mark(shape, sx(party), cy, color,
+                             f"{r['st']}: ${party:.2f} per adult from the party network for {r['democrat']} ({label.lower()})", 4.8))
+            share = f"{party / against * 100:.0f}%" if against > 0.05 else "n/a"
+            body.append(f'<text x="{W - 8}" y="{cy + 4:.1f}" class="value" text-anchor="end">{share}</text>')
+            out_rows.append((r, party, against, share))
+            y += row
+    body.insert(0, x_axis(sx, lo, hi, 10, plot_top, y, fmt=lambda t: f"${t:.0f}",
+                          label="Outside money per adult in the state, general election (US dollars)"))
+    return svg(h, "".join(body), "Party money for the Democrat against money spent against them, Senate 2026",
+               "For each contested 2026 Senate race, a filled mark shows party-network spending for the Democrat per adult and "
+               "a grey tick shows all outside spending against the Democrat per adult; the right column is the share matched."), out_rows
+
+
+def house_money_chart(house):
+    rows_def = ["Toss-up", "Lean", "Likely"]
+    pts = [r for r in house if r["challenger_or_open"] == "1" and r["rating_bucket"] in rows_def
+           and r["faction"] in ROWS and r["estab_per_voter"] not in ("", None)]
+    lo, hi = 0, 80
+    row_h, top = 74, 14
+    h = top + row_h * len(rows_def) + 48
+    hl = 200
+    sx = scale(lo, hi, hl, W - MR)
+    body = [x_axis(sx, lo, hi, 10, top, top + row_h * len(rows_def), fmt=lambda t: f"${t:.0f}",
+                   label="Party committee and party super PAC money per vote cast (US dollars)")]
+    names = {"CA-22": ("Villegas", 7, -6, "start"), "MI-07": ("Lawrence", 7, 16, "start"), "ME-02": ("Dunlap", 0, -10, "middle"),
+             "VA-05": ("Perriello", -8, 16, "start"), "TN-09": ("Pearson", 7, -8, "start")}
+    table_rows = []
+    for i, rb in enumerate(rows_def):
+        cy = top + row_h * i + row_h / 2
+        rr = [r for r in pts if r["rating_bucket"] == rb]
+        mods = [float(r["estab_per_voter"]) for r in rr if r["faction"] == "moderate"]
+        body.append(f'<text x="{hl - 14}" y="{cy - 4:.1f}" class="row-label" text-anchor="end">{esc(rb)}</text>')
+        body.append(f'<text x="{hl - 14}" y="{cy + 12:.1f}" class="row-sub" text-anchor="end">n={len(rr)}, moderate median ${st.median(mods):.0f}</text>')
+        body.append(f'<line x1="{sx(st.median(mods)):.1f}" x2="{sx(st.median(mods)):.1f}" y1="{cy - row_h * 0.4:.1f}" '
+                    f'y2="{cy + row_h * 0.4:.1f}" class="median" style="stroke:var(--moderate)"/>')
+        for r in sorted(rr, key=lambda r: r["faction"] == "progressive"):
+            v = float(r["estab_per_voter"])
+            label, color, shape = FACTION[r["faction"]]
+            yy = cy + jitter(r["code"], row_h * 0.28)
+            rtb = f", Red to Blue {r['red_to_blue_date']}" if r["red_to_blue"] == "1" else ""
+            body.append(mark(shape, sx(min(v, hi)), yy, color,
+                             f"{r['code']}: {r['dem_nominee']} ({label.lower()}), ${v:.2f} per vote{rtb}; "
+                             f"{'won' if r['dem_won'] == '1' else 'lost'}", 4))
+            if r["code"] in names:
+                nm, dx, dy, anc = names[r["code"]]
+                body.append(f'<text x="{sx(min(v, hi)) + dx:.1f}" y="{yy + dy:.1f}" class="point-label" text-anchor="{anc}">{nm}</text>')
+            table_rows.append((rb, r["code"], r["dem_nominee"], label, f"${v:.2f}", "yes" if r["red_to_blue"] == "1" else "no",
+                               "won" if r["dem_won"] == "1" else "lost"))
+    return svg(h, "".join(body), "Party money for House challengers by race rating",
+               "Strip plot of Democratic challengers and open-seat nominees in Toss-up, Lean and Likely seats: x is party "
+               "committee and House Majority PAC money per vote cast, rows are race ratings, with the moderate median marked."), table_rows
+
+
 # ---------------------------------------------------------------- page
 
 def table(head, rows):
@@ -307,8 +401,10 @@ def table(head, rows):
     return f'<div class="table-wrap"><table><thead><tr>{th}</tr></thead><tbody>{tr}</tbody></table></div>'
 
 
-def figure(fid, chart, caption, legend_keys=None, data_table=None):
+def figure(fid, chart, caption, legend_keys=None, data_table=None, extra_legend=""):
     lg = legend(legend_keys) if legend_keys else ""
+    if extra_legend:
+        lg = lg[:-len("</div>")] + extra_legend + "</div>" if lg else f'<div class="legend">{extra_legend}</div>'
     dt = f'<details><summary>Show the numbers as a table</summary>{data_table}</details>' if data_table else ""
     return f'<figure id="{fid}">{lg}<div class="chart">{chart}</div><figcaption>{caption}</figcaption>{dt}</figure>'
 
@@ -317,7 +413,7 @@ def main():
     house, state = load()
     SITE.mkdir(exist_ok=True)
     (SITE / "data").mkdir(exist_ok=True)
-    for f in ("house_2026.csv", "statewide_2026.csv"):
+    for f in ("house_2026.csv", "statewide_2026.csv", "senate_money_2026.csv", "house_money_2026.csv"):
         shutil.copy(HERE / "data" / f, SITE / "data" / f)
 
     def grp(f, field):
@@ -394,6 +490,14 @@ def main():
                           signed(r["dem_margin"]), signed(r["swing_vs_2024"]))
                          for r in sorted(state, key=lambda r: -r["swing_vs_2024"])])
 
+    sen_money, house_money = load_money()
+    sen_money_svg, sen_rows = senate_money_chart(sen_money)
+    house_money_svg, hm_rows = house_money_chart(house_money)
+    sen_money_table = table(["Race", "Rating", "Faction", "Party money for Democrat, per adult", "All outside money against, per adult", "Share matched"],
+                            [(f'{r["st"]} {r["democrat"]}', r["cook_final"], FACTION[MONEY_FACTION[r["faction"]]][0],
+                              f"${party:.2f}", f"${against:.2f}", share) for r, party, against, share in sen_rows])
+    house_money_table = table(["Rating", "Seat", "Democrat", "Faction", "Party money per vote", "Red to Blue", "Result"], hm_rows)
+
     page = TEMPLATE
     subs = {
         "FIG_TIDE": figure("fig-tide", tide,
@@ -416,6 +520,19 @@ def main():
                              "Filled dots are this page's estimates, hollow dots are published ones. Lines show a 95% interval or a published range; "
                              "a dot without a line had no interval published. Positive numbers favour moderates.",
                              None, forest_table),
+        "FIG_SEN_MONEY": figure("fig-senate-money", sen_money_svg,
+                                "Contested Senate races, grouped by the Cook Political Report's final rating. The coloured mark is spending for the Democrat by the "
+                                "Senate Majority PAC network and the DSCC's independent spending. The grey tick is all outside spending against the Democrat. "
+                                "Both are general-election independent expenditures per adult resident (2024 voting-age population). "
+                                "Party coordinated spending is not included. The right column is the first as a share of the second.",
+                                ["moderate", "progressive", "mixed-unclear"], sen_money_table,
+                                extra_legend='<span class="lg"><svg width="14" height="16" viewBox="0 0 14 16" aria-hidden="true">'
+                                             '<line x1="7" x2="7" y1="0" y2="16" class="against"/></svg>Spent against the Democrat</span>'),
+        "FIG_HOUSE_MONEY": figure("fig-house-money", house_money_svg,
+                                  "Democratic challengers and open-seat nominees in seats rated Toss-up, Lean or Likely. Money is DCCC coordinated "
+                                  "spending through October 13 plus House Majority PAC independent spending through Election Day, per vote cast. "
+                                  "The blue tick is the moderate median in each row.",
+                                  ROWS, house_money_table),
         "N_CLOSE": str(n_close), "N_CLOSE5": str(n_close5), "N_FLIPS": str(len(flips)),
         "FLIP_MOD": str(flip_counts["moderate"]), "FLIP_BOTH": str(flip_counts["both"]),
         "FLIP_PROG": str(flip_counts["progressive"]), "FLIP_NONE": str(flip_counts["unflagged"]),
