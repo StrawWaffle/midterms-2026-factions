@@ -1,0 +1,45 @@
+state,office,white_share_pct,dem_pct_white,dem_pct_nonwhite,source_type,source_url,notes
+MI,Senate,81,48,74,NBC exit,https://www.nbcnews.com/politics/2026-elections/michigan-senate-results,El-Sayed (D) v Rogers (R); 2024 Trump voters 44% (D 6%); independents 35% (D 58%)
+MI,Governor,81,,,NBC exit,https://www.nbcnews.com/politics/2026-elections/michigan-senate-results,white share copied from same-day Senate exit poll (same electorate); Governor-specific crosstabs not fetched
+MN,Senate,87,52,65,NBC exit,https://www.nbcnews.com/politics/2026-elections/minnesota-senate-results,Flanagan (D) v Tafoya (R); Trump24 41% (D 4%); ind 35% (D 54%)
+MN,Governor,87,,,NBC exit,https://www.nbcnews.com/politics/2026-elections/minnesota-senate-results,white share copied from same-day Senate exit poll (same electorate); Governor-specific crosstabs not fetched
+ME,Senate,94,53,46,NBC exit,https://www.nbcnews.com/politics/2026-elections/maine-senate-results,Collins (R) v Jackson (D) per page; Trump24 40% (D 4%); ind 42% (D 56%); nonwhite n small
+ME,Governor,94,,,NBC exit,https://www.nbcnews.com/politics/2026-elections/maine-senate-results,white share copied from same-day Senate exit poll (same electorate); Governor-specific crosstabs not fetched
+NC,Senate,73,50,82,NBC exit,https://www.nbcnews.com/politics/2026-elections/north-carolina-senate-results,Cooper (D) v Whatley (R); Trump24 43% (D 10%); ind 35% (D 63%)
+TX,Senate,55,42,72,NBC exit,https://www.nbcnews.com/politics/2026-elections/texas-senate-results,Talarico (D) v Paxton (R); Trump24 47% (D 11%); ind 29% (D 64%)
+TX,Governor,55,,,NBC exit,https://www.nbcnews.com/politics/2026-elections/texas-senate-results,white share copied from same-day Senate exit poll (same electorate); Governor-specific crosstabs not fetched
+KS,Senate,86,,,NBC exit,https://www.nbcnews.com/politics/2026-elections/kansas-governor-results,white share copied from same-day Governor exit poll (same electorate); Senate-specific crosstabs not fetched
+KS,Governor,86,47,66,NBC exit,https://www.nbcnews.com/politics/2026-elections/kansas-governor-results,Holscher (D) v Masterson (R); Trump24 52% (D 8%); ind 33% (D 64%)
+IA,Senate,91,49,63,NBC exit,https://www.nbcnews.com/politics/2026-elections/iowa-senate-results,Turek (D) v Hinson (R); Trump24 49% (D 9%); ind 35% (D 59%)
+IA,Governor,91,,,NBC exit,https://www.nbcnews.com/politics/2026-elections/iowa-senate-results,white share copied from same-day Senate exit poll (same electorate); Governor-specific crosstabs not fetched
+SC,Senate,74,42,78,NBC exit,https://www.nbcnews.com/politics/2026-elections/south-carolina-senate-results,Andrews (D) v Graham (R); Trump24 52% (D 10%); ind 32% (D 63%)
+SC,Governor,74,,,NBC exit,https://www.nbcnews.com/politics/2026-elections/south-carolina-senate-results,white share copied from same-day Senate exit poll (same electorate); Governor-specific crosstabs not fetched
+NH,Senate,93,57,53,NBC exit,https://www.nbcnews.com/politics/2026-elections/new-hampshire-senate-results,Pappas (D) v Sununu (R); Trump24 42% (D 7%); ind 44% (D 60%); nonwhite n small
+NH,Governor,93,,,NBC exit,https://www.nbcnews.com/politics/2026-elections/new-hampshire-senate-results,white share copied from same-day Senate exit poll (same electorate); Governor-specific crosstabs not fetched
+GA,Senate,60,40,85,NBC exit,https://www.nbcnews.com/politics/2026-elections/georgia-senate-results,Ossoff (D) v Collins (R); Trump24 45% (D 13%); ind 30% (D 66%)
+GA,Governor,60,,,NBC exit,https://www.nbcnews.com/politics/2026-elections/georgia-senate-results,white share copied from same-day Senate exit poll (same electorate); Governor-specific crosstabs not fetched
+MS,Senate,65,27,91,NBC exit,https://www.nbcnews.com/politics/2026-elections/mississippi-senate-results,Colom (D) v Hyde-Smith (R); Trump24 54% (D 9%); ind 24% (D 62%)
+OH,Senate,85,,,NBC exit,https://www.nbcnews.com/politics/2026-elections/ohio-governor-results,white share copied from same-day Governor exit poll (same electorate); Senate-specific crosstabs not fetched - ohio-senate-results URL returned 404
+OH,Governor,85,48,76,NBC exit,https://www.nbcnews.com/politics/2026-elections/ohio-governor-results,Acton (D) v Ramaswamy (R); Trump24 49% (D 10%); ind 31% (D 62%)
+AK,Senate,75,48,54,NBC exit,https://www.nbcnews.com/politics/2026-elections/alaska-senate-results,Peltola (D) v Sullivan (R); Trump24 48% (D 5%); ind 48% (D 63%)
+AK,Governor,75,,,NBC exit,https://www.nbcnews.com/politics/2026-elections/alaska-senate-results,white share copied from same-day Senate exit poll (same electorate); Governor-specific crosstabs not fetched
+NE,Senate,89,42,61,NBC exit,https://www.nbcnews.com/politics/2026-elections/nebraska-senate-results,"Osborn (I, no Dem on ballot) v Ricketts (R); dem_pct = Osborn; Trump24 55% (Osborn 8%); ind 29% (Osborn 63%)"
+NE,Governor,89,,,NBC exit,https://www.nbcnews.com/politics/2026-elections/nebraska-senate-results,white share copied from same-day Senate exit poll (same electorate); Governor-specific crosstabs not fetched
+FL,Senate,67,,,NBC exit,https://www.nbcnews.com/politics/2026-elections/florida-governor-results,white share copied from same-day Governor exit poll (same electorate); Senate-specific crosstabs not fetched
+FL,Governor,67,41,65,NBC exit,https://www.nbcnews.com/politics/2026-elections/florida-governor-results,Jolly (D) v Donalds (R); Trump24 51% (D 6%); ind 29% (D 58%)
+WI,Governor,88,51,72,NBC exit,https://www.nbcnews.com/politics/2026-elections/wisconsin-governor-results,Crowley (D) v Tiffany (R); Trump24 45% (D 7%); ind 34% (D 61%)
+AZ,Governor,72,53,63,NBC exit,https://www.nbcnews.com/politics/2026-elections/arizona-governor-results,Hobbs (D) v Biggs (R); Trump24 46% (D 10%); ind 37% (D 62%)
+NV,Governor,63,45,62,NBC exit,https://www.nbcnews.com/politics/2026-elections/nevada-governor-results,Ford (D) v Lombardo (R); Trump24 43% (D 5%); ind 36% (D 55%)
+PA,Governor,84,56,79,NBC exit,https://www.nbcnews.com/politics/2026-elections/pennsylvania-governor-results,Shapiro (D) v Garrity (R); Trump24 44% (D 18%); ind 25% (D 65%); fetch summary mentioned a 'National Exit Polls' label (likely just the nav link) - verify
+NY,Governor,74,53,79,NBC exit,https://www.nbcnews.com/politics/2026-elections/new-york-governor-results,Hochul (D) v Blakeman (R); Trump24 39% (D 7%); ind 31% (D 54%)
+VA,Senate,75,54,81,NBC exit,https://www.nbcnews.com/politics/2026-elections/virginia-senate-results,Warner (D) v Mizusawa (R); Trump24 41% (D 11%); ind 34% (D 67%)
+CO,Senate,82,60,61,NBC exit,https://www.nbcnews.com/politics/2026-elections/colorado-senate-results,Hickenlooper (D) v Baisley (R); Trump24 36% (D 5%); ind 43% (D 60%)
+CO,Governor,82,,,NBC exit,https://www.nbcnews.com/politics/2026-elections/colorado-senate-results,white share copied from same-day Senate exit poll (same electorate); Governor-specific crosstabs not fetched
+IL,Senate,75,54,82,NBC exit,https://www.nbcnews.com/politics/2026-elections/illinois-senate-results,Stratton (D) v Tracy (R); Trump24 37% (D 6%); ind 32% (D 60%)
+IL,Governor,75,,,NBC exit,https://www.nbcnews.com/politics/2026-elections/illinois-senate-results,white share copied from same-day Senate exit poll (same electorate); Governor-specific crosstabs not fetched
+NM,Senate,51,59,67,NBC exit,https://www.nbcnews.com/politics/2026-elections/new-mexico-senate-results,Lujan (D) v Marker (R); fetched by lead researcher
+NM,Governor,51,,,NBC exit,https://www.nbcnews.com/politics/2026-elections/new-mexico-senate-results,white share copied from same-day Senate exit poll
+OR,Senate,83,,,NBC exit,https://www.nbcnews.com/politics/2026-elections/oregon-governor-results,white share copied from same-day Governor exit poll
+OR,Governor,83,54,49,NBC exit,https://www.nbcnews.com/politics/2026-elections/oregon-governor-results,Kotek (D) v Drazan (R); fetched by lead researcher
+KY,Senate,90,40,65,NBC exit,https://www.nbcnews.com/politics/2026-elections/kentucky-senate-results,Booker (D) v Barr (R); Trump24 57% (D 7%); ind 24% (D 52%)
+LA,Senate,68,34,82,NBC exit,https://www.nbcnews.com/politics/2026-elections/louisiana-senate-results,Davis (D) v Letlow (R); fetched by lead researcher

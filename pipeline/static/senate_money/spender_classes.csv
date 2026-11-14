@@ -1,0 +1,32 @@
+spe_id,name,class,note
+C00042366,DSCC,party,Democratic Senate party committee
+C00484642,SMP (Senate Majority PAC),party,Schumer-aligned super PAC
+C30002802,Majority Forward,party,SMP-affiliated 501(c)(4)
+C90016098,Majority Forward,party,SMP-affiliated 501(c)(4)
+C00865444,WinSenate,party,treasurer Rebecca Lambe (SMP treasurer); see notes for affiliation
+C00957522,North Star,party,treasurer Rebecca Lambe (SMP treasurer)
+C00953398,The Georgia Way,party,treasurer Rebecca Lambe (SMP treasurer)
+C00630665,Justice Democrats PAC,progressive,
+C00954503,Working Class Majority PAC,other,shares treasurer with Justice Democrats but funded by United Futures Inc. (Dem dark-money shell; CLC complaint Nov 2026)
+C00606962,Working Families Party PAC,progressive,
+C00748764,WFP Justice Fund,progressive,
+C00419572,DSA PAC,progressive,
+C00458000,Progressive Change Campaign Committee,progressive,
+C90017005,Our Revolution,progressive,
+C00674697,Sunrise PAC,progressive,
+C00843110,Leaders We Deserve,progressive,David Hogg's PAC
+C00513176,Congressional Progressive Caucus PAC,progressive,
+C00402800,Progressive Democrats of America,progressive,
+C00794826,Michiganders for Progressive Change,progressive,
+C00876649,Reject AIPAC PAC,progressive,
+C00027466,NRSC,anti_party,Republican Senate party committee
+C00571703,SLF PAC (Senate Leadership Fund),anti_party,McConnell/Thune-aligned super PAC
+C90016262,One Nation,anti_party,SLF-affiliated 501(c)(4)
+C00468447,One Nation PAC,anti_party,
+C00799031,United Democracy Project (AIPAC),anti_aipac,AIPAC super PAC
+C00835959,Fairshake,anti_crypto,crypto industry super PAC
+C00836221,Defend American Jobs,anti_crypto,crypto industry (Republican-side) super PAC
+C00848440,Protect Progress,crypto_pro_dem,crypto industry (Democratic-side) super PAC
+C00961276,Lower Costs Now,party,joint SMP/Future Forward vehicle: $30M from SMP and $20M from FF PAC by Oct 14 (FactCheck.org)
+C00962308,Texas Forever,party,SMP-affiliated (Washington Examiner 2026-09-25)
+C00666388,Duty and Country,party,SMP-funded affiliate (Ballotpedia; 2018/2020/2024 history)
