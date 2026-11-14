@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moderates, progressives and the 2026 wave</title>
+<meta name="description" content="Did moderate or progressive Democrats drive the 2026 midterm wave? House, Senate and governor results compared against 2024, with the data.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f6f6f4;
+  --surface: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --rule: #dcdbd6;
+  --grid: #e8e7e3;
+  --band: #ecebe6;
+  --band-strong: #f4dfd3;
+  --link: #1c5cab;
+  --moderate: #2a78d6;
+  --progressive: #eb6834;
+  --both: #1baf7a;
+  --neutral: #8a8984;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121211;
+    --surface: #1a1a19;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --rule: #34332f;
+    --grid: #2a2a27;
+    --band: #252523;
+    --band-strong: #3b2a21;
+    --link: #86b6ef;
+    --moderate: #3987e5;
+    --progressive: #d95926;
+    --both: #199e70;
+    --neutral: #8f8e88;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --rule: #34332f;
+  --grid: #2a2a27; --band: #252523; --band-strong: #3b2a21; --link: #86b6ef;
+  --moderate: #3987e5; --progressive: #d95926; --both: #199e70; --neutral: #8f8e88;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 400 16px/1.6 "IBM Plex Sans", system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+main { max-width: 760px; margin: 0 auto; padding: 32px 16px 64px; }
+h1 { font-size: 30px; line-height: 1.2; font-weight: 600; margin: 0 0 8px; }
+h2 { font-size: 21px; line-height: 1.3; font-weight: 600; margin: 48px 0 12px; padding-top: 16px; border-top: 1px solid var(--rule); }
+h3 { font-size: 17px; font-weight: 600; margin: 28px 0 8px; }
+p, li { max-width: 68ch; }
+a { color: var(--link); }
+.dateline { color: var(--ink-2); margin: 0 0 24px; }
+.answer { border-left: 3px solid var(--ink); padding: 2px 0 2px 16px; margin: 24px 0; }
+nav ol { padding-left: 20px; margin: 8px 0 0; }
+nav li { margin: 2px 0; }
+blockquote { margin: 16px 0; padding: 0 0 0 16px; border-left: 3px solid var(--rule); color: var(--ink-2); }
+figure { margin: 24px 0 32px; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 16px; }
+figcaption { color: var(--ink-2); font-size: 14px; margin-top: 8px; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; margin-bottom: 8px; }
+.lg { display: inline-flex; align-items: center; gap: 6px; }
+svg text { fill: var(--ink-2); font-family: inherit; }
+.tick { font-size: 12px; }
+.axis-label { font-size: 13px; }
+.row-label { font-size: 14px; fill: var(--ink); font-weight: 500; }
+.row-label-sm { font-size: 13px; fill: var(--ink); }
+.group-label { font-size: 13px; fill: var(--ink); font-weight: 600; }
+.row-sub, .note { font-size: 12px; }
+.point-label { font-size: 12px; fill: var(--ink); }
+.value { font-size: 13px; fill: var(--ink); font-weight: 500; }
+.grid { stroke: var(--grid); stroke-width: 1; }
+.zero { stroke: var(--ink-2); stroke-width: 1; }
+.band { fill: var(--band); }
+.band.strong { fill: var(--band-strong); }
+.median { stroke: var(--ink); stroke-width: 2; }
+.fit { stroke: var(--ink-2); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.connector { stroke: var(--ink-2); stroke-width: 2; }
+.ci { stroke: var(--ink); stroke-width: 2; }
+.mk { stroke: var(--surface); stroke-width: 1; cursor: default; }
+circle.mk[fill="none"] { stroke-width: 1.6; }
+.mk:focus { outline: none; stroke: var(--ink); stroke-width: 2; }
+details { margin-top: 10px; font-size: 14px; }
+summary { cursor: pointer; color: var(--link); }
+.table-wrap { overflow-x: auto; margin-top: 8px; max-height: 420px; overflow-y: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+th { font-weight: 600; position: sticky; top: 0; background: var(--surface); }
+#tip {
+  position: fixed; z-index: 10; pointer-events: none; display: none; max-width: 300px;
+  background: var(--surface); color: var(--ink); border: 1px solid var(--rule); border-radius: 6px;
+  padding: 8px 10px; font-size: 13px; line-height: 1.4; box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+.sources li { margin: 4px 0; }
+.theme { float: right; font: inherit; font-size: 14px; background: none; border: 1px solid var(--rule); color: var(--ink-2); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+@media (max-width: 560px) {
+  h1 { font-size: 25px; }
+  figure { padding: 10px; margin-left: -8px; margin-right: -8px; }
+}
+</style>
+</head>
+<body>
+<main>
+<button class="theme" type="button" id="theme">Dark mode</button>
+<h1>Did moderates win the 2026 midterms?</h1>
+<p class="dateline">A look at every House, Senate and governor race, written November 14, 2026. Results are unofficial and some seats are still counting.</p>
+
+<p>After Democrats' wave on November 3, a fight broke out over who deserves the credit. Centrist writers said moderate candidates ran ahead and progressives lagged. Mehdi Hasan answered in a <a href="https://x.com/mehdirhasan/status/2121382704105267425">Zeteo video</a> that this was "complete and utter bullshit. Just totally out of context, cherry-picked numbers, and ridiculous comparisons."</p>
+<p>Both sides are arguing about two different questions without separating them. One is what caused Democrats to do so well. The other is whether moderates do better than progressives in the same seat. This page takes them one at a time, with the results of all 410 House races that had a Democrat against a Republican, all 65 comparable Senate and governor races, and every published analysis I could find.</p>
+
+<div class="answer">
+<p><strong>Short answer.</strong> The wave came from the national environment, and it lifted every faction by about 15 points. Moderates do run somewhat better than progressives in the same kind of seat, by about 0 to 3 points in House races and about 2 to 6 points statewide. That gap is real but small next to the wave. Moderates won most of the seats Democrats flipped mainly because moderates were the nominees in most of the seats that could flip. In this wave, a 3-point handicap would have reversed {{N_CLOSE}} of the {{N_FLIPS}} flips. In a close year it would decide far more.</p>
+</div>
+
+<nav aria-label="Contents">
+<strong>Contents</strong>
+<ol>
+<li><a href="#measure">How to compare candidates fairly</a></li>
+<li><a href="#tide">The wave lifted every faction</a></li>
+<li><a href="#where">Moderates ran where the seats were</a></li>
+<li><a href="#flips">Would progressives have won those seats?</a></li>
+<li><a href="#house">Seat for seat, the House gap is small</a></li>
+<li><a href="#statewide">Statewide, progressives ran a few points behind</a></li>
+<li><a href="#estimates">Every estimate in one place</a></li>
+<li><a href="#primaries">Why progressives rarely win swing-seat primaries</a></li>
+<li><a href="#hasan">What this means for Hasan's argument</a></li>
+<li><a href="#data">Data, method and limits</a></li>
+<li><a href="#sources">Sources</a></li>
+</ol>
+</nav>
+
+<h2 id="measure">How to compare candidates fairly</h2>
+<p>Raw winning margins tell you almost nothing about a candidate. A Democrat who wins a deep blue seat by 40 points hasn't outperformed one who wins a Trump seat by 2. So nearly every serious analysis starts from a baseline, and the usual one is the 2024 presidential result in the same seat. If Harris won a district by 5 and the 2026 Democrat won it by 20, that Democrat ran 15 points ahead of the baseline. This page calls that number the <em>swing</em> or <em>overperformance</em>.</p>
+<p>Two complications matter throughout. First, seats that voted heavily for Trump in 2024 had more room to swing back, so red-seat candidates look better on this measure whatever their ideology. Second, "moderate" and "progressive" are labels someone has to assign. For House races I use endorsements and caucus membership. A nominee is <em>progressive</em> if they belong to the Congressional Progressive Caucus or were endorsed by Justice Democrats, DSA, Bernie Sanders, Our Revolution or the Progressive Caucus PAC. A nominee is <em>moderate</em> if they belong to or were endorsed by the New Democrat Coalition or the Blue Dogs, or were endorsed by WelcomePAC. Some nominees carry both flags and many carry neither. A stricter version keeps only Justice Democrats, DSA and Sanders on one side and Blue Dogs and WelcomePAC on the other.</p>
+
+<h2 id="tide">The wave lifted every faction</h2>
+<p>Across all 410 contested House seats, the Democratic nominee ran an average of 14.8 points ahead of Harris's 2024 margin. Split by faction, the averages barely differ. Moderate-flagged nominees ran {{MOD_MEAN}}, nominees with both flags {{BOTH_MEAN}}, progressive-flagged nominees {{PROG_MEAN}}, and nominees with no flag {{NONE_MEAN}}.</p>
+{{FIG_TIDE}}
+<p>The wave was about Trump, not about Democrats' ideology. Trump's approval averaged 39 percent, and disapproval was higher than approval in all 11 competitive Senate states (<a href="https://www.brookings.edu/articles/how-democrats-won-big-and-why-2028-remains-an-open-question/">Brookings</a>). An early analysis of 13 states credits about 75 percent of the Democratic gain to Republicans staying home and about 20 percent to voters switching sides (<a href="https://michiganadvance.com/?p=115713">Stateline</a>). That estimate is preliminary. Still, when most of a wave comes from the other side's voters not showing up, the Democratic nominee's ideology has less to work on.</p>
+<p>The biggest overperformers sit at the far right of the chart, and almost all of them are in heavily Hispanic districts in South Texas and California's Central Valley. Henry Cuellar ran 46.5 points ahead of the 2024 margin, Bobby Pulido 42.5 and Randy Villegas 37.5. Cuellar and Pulido are Blue Dogs, and Villegas is a Sanders-backed progressive. AP's numbers show Democrats running about 11 points above Harris in House districts that are at least a quarter Hispanic, against about 7 elsewhere (<a href="https://www.ajc.com/news/2026/11/latino-voters-swing-left-in-midterm-elections-lifting-democrats-to-big-wins-in-texas-and-nationwide/">AP via the AJC</a>). That swing belonged to the districts, not the factions.</p>
+
+<h2 id="where">Moderates ran where the seats were</h2>
+<p>The factions did not run in the same places. Of the {{PROG_N}} progressive-flagged nominees, the median ran in a seat Harris won by {{PROG_MED}} points, only {{PROG_COMP}} ran in seats within 15 points, and {{PROG_TRUMP}} ran in seats Trump carried. Of the {{MOD_N}} moderate-flagged nominees, the median seat was {{MOD_MED}}, {{MOD_COMP}} ran in competitive seats and {{MOD_TRUMP}} ran in Trump seats.</p>
+{{FIG_WHERE}}
+<p>This is why moderates won most of the flips. Democrats took {{N_FLIPS}} seats that Republicans held. {{FLIP_MOD}} went to moderate-flagged nominees, {{FLIP_BOTH}} to nominees with both flags, {{FLIP_PROG}} to progressive-flagged nominees (Villegas in CA-22 and Will Lawrence in MI-7) and {{FLIP_NONE}} to nominees with no flag. Third Way presents this pattern as proof that <a href="https://www.thirdway.org/memo/moderates-made-democratic-majorities">"moderates made Democratic majorities."</a> In a literal sense they did. They were the ones on the ballot in the seats that decided the majority.</p>
+<p>The count can't tell you whether a progressive would have done as well in those same seats, because progressives mostly weren't running there. The NewDem Action Fund endorsed nearly every serious challenger in a Trump-won or near-even seat, while progressive groups put most of their effort into open primaries in safe blue seats.</p>
+
+<h2 id="flips">Would progressives have won those seats?</h2>
+<p>One way to answer is to ask how many flips were close enough for a small handicap to matter. Suppose a progressive nominee in each flipped seat had run 3 points worse than the moderate who actually ran. That is roughly the size of the moderate advantage the best published estimates find.</p>
+{{FIG_FLIPS}}
+<p>{{N_CLOSE}} of the {{N_FLIPS}} flips were won by less than 3 points, and {{N_CLOSE5}} by less than 5. The rest were won by margins the wave would have carried with almost any nominee. So in 2026 the moderate advantage was worth roughly a handful of House seats, not the majority.</p>
+<p>The moderate label didn't guarantee anything either. Democrats lost {{LOST_CLOSE}} House races by less than 3 points, and most of those nominees were moderate-flagged or had no flag at all.</p>
+<p>The handful matters more in a normal year. In a close national environment, a few points is the difference in dozens of seats, and that is when the moderate advantage pays off.</p>
+
+<h2 id="house">Seat for seat, the House gap is small</h2>
+<p>The fairer test compares nominees in similar seats. I regressed each Democrat's 2026 margin on the seat's 2024 presidential margin, incumbency and faction flags. Under the broad definition, moderate-only nominees ran 0.2 points <em>behind</em> progressive-only nominees across all 410 seats (95% interval −2.7 to +2.2), and 1.9 points behind in the 132 competitive seats (−6.9 to +3.2). Neither result is distinguishable from zero.</p>
+<p>The strict definition gives moderates an edge of 3.1 points (95% interval −1.8 to +8.0). About a third of it disappears without the seven South Texas and Central Valley seats, leaving 2.3 (−1.7 to +6.2). Controlling for the district's Hispanic and college-educated shares instead gives 2.1. None of these is statistically significant, partly because there are only 22 strict progressives and 32 strict moderates.</p>
+<p>The published House analyses land in the same range:</p>
+<ul>
+<li>Lakshya Jain of Split Ticket, in <a href="https://www.theargumentmag.com/p/do-moderates-still-have-an-electability">The Argument</a>, models what a generic Democrat would have won in each seat. Blue Dogs ran "a little over 3 points" better than progressives, down from nearly 5 in 2018 to 2024. He concludes that moderation "may have had less of an advantage than ever before."</li>
+<li>The <a href="https://cwcp.substack.com/p/ideological-endorsements-mostly-didnt">Center for Working-Class Politics</a> compared each nominee with Democrats in similar districts. Most factions came within 1 to 2 points of each other. Blue Dogs ran nearly 3 ahead, but all of that came from four candidates: Cuellar, Pulido, Jamie Ager and Dembo. Justice Democrats ran about 1.5 behind. Working-class populist candidates, claimed by both camps, did best of any group at about 6 to 7 ahead.</li>
+<li>G. Elliott Morris, as reported by <a href="https://www.cnn.com/2026/11/06/politics/far-left-democrats-midterm-election">CNN</a>, measured raw swing from Harris. Progressive Caucus members averaged +12.2, New Democrats +14.1, Blue Dogs +15.4 and DSA members +16.5, the last on only seven candidates in safe seats.</li>
+<li>Adam Bonica found that statewide candidates in ten key states ran only 1.3 points away from their state's House vote on average, and called the factional fight "a distraction" (<a href="https://data4democracy.substack.com/p/parties-are-electable-not-candidates">Bonica</a>).</li>
+</ul>
+<p>The best performers in our data were four nominees endorsed by both the Blue Dogs and Sanders or Our Revolution: Cooke in WI-3, Forstag in MT-1, Poindexter in OH-7 and Brooks in PA-7. Four races can't carry a conclusion, but it fits the Center for Working-Class Politics' finding that the populist-versus-establishment split predicted results better than left-versus-center.</p>
+
+<h2 id="statewide">Statewide, progressives ran a few points behind</h2>
+<p>The centrist case is strongest in the Senate. The three progressives in competitive Senate races swung their states much less than the moderates did. Abdul El-Sayed swung Michigan 8.4 points from 2024, Peggy Flanagan swung Minnesota 5.9, and Troy Jackson swung Maine −0.6. Five moderates in competitive races averaged 17.5. Jonathan Chait summed up this comparison in <a href="https://archive.ph/20261112201741/https://www.theatlantic.com/ideas/2026/11/moderates-midterms-success-progressives/689371/">The Atlantic</a>: "the five left-wing candidates backed by Sanders accounted for the four smallest swings in contested races."</p>
+<p>Much of that gap comes from geography. Red states swung harder no matter who ran. Across all 65 races, each point of Trump's 2024 margin added about {{SLOPE}} points of Democratic swing, and the moderates in that comparison ran in red states while the progressives ran in purple and blue ones.</p>
+{{FIG_SCATTER}}
+<p>Opponents mattered too. Talarico faced Ken Paxton, whom about two thirds of Texas voters said lacked the character to serve. Annie Andrews faced Darline Graham, appointed to the seat after Lindsey Graham's death (<a href="https://www.clickondetroit.com/news/politics/2026/11/04/how-trump-and-republicans-lost-the-2026-midterm-elections-according-to-the-ap-voter-poll/">AP Voter Poll</a>). Adam Hamilton faced Roger Marshall, whose approval fell to 26 percent in one Kansas survey after a report that his former practice sued more than 700 patients over medical debt (<a href="https://mediaite.com/politics/kansas-sen-roger-marshall-gets-wrecked-by-poll-respondents-over-suing-his-patients-total-scumbag-fake-kansan">Mediaite</a>). In our statewide models, facing a Republican who had held elected office cost about 6 points of swing, roughly as much as being progressive.</p>
+
+<h3>The cleanest test: two Democrats on one ballot</h3>
+<p>The best comparison holds the state, the day and the national mood fixed. In seven states, one statewide Democrat was progressive and the other moderate.</p>
+{{FIG_PAIRS}}
+<p>In the three competitive states the progressive ran behind. El-Sayed trailed Jocelyn Benson by 3.8 points of margin in Michigan, and Flanagan trailed Amy Klobuchar by 2.7 in Minnesota. Jackson trailed Hannah Pingree by 10.7 in Maine, but an independent took 8 percent in the governor's race, so on vote share the three gaps are 2.1, 1.8 and 1.3 points. In safe blue states the pattern reverses: Jeff Merkley ran 9.8 points ahead of Tina Kotek in Oregon and Ed Markey 4.0 ahead of Maura Healey in Massachusetts. Across all seven pairs the progressive averaged {{PAIR_MEAN}} points against the moderate, which is noise. Two moderates on Iowa's ballot, Josh Turek and Rob Sand, were 6.9 points apart.</p>
+<p>A regression across all 65 races, controlling for the 2024 margin, incumbency, office, the white share of the electorate and opponent quality, puts progressives 5.9 points behind (95% interval 0.8 to 11.0). That rests on ten progressive nominees, only three of them in competitive races. My best reading of all the statewide evidence is that progressives ran 2 to 6 points behind comparable Democrats.</p>
+
+<h3>Michigan: real penalties, and not only ideology</h3>
+<p>El-Sayed ran behind Benson among nearly every group in the exit poll, which points to a general candidate penalty rather than one group defecting. Several things fed it.</p>
+<ul>
+<li>Outside groups spent about $134 million opposing him in the general election, around three times the $42 million spent against Roy Cooper in North Carolina, a state of similar size (<a href="https://votelog.org/investigations/michigan-senate-general-money">VoteLog Michigan</a>, <a href="https://votelog.org/investigations/north-carolina-senate-general-money">VoteLog North Carolina</a>).</li>
+<li>A September Washington Post and Schar School poll found 45 percent of likely Michigan voters would not consider a Muslim for president. Rogers led that group 75 to 18, and "El-Sayed's support among that group is six percentage points lower than Benson's" (<a href="https://archive.ph/20261030013825/https://www.washingtonpost.com/politics/2026/09/17/michigan-senate-race-poll-finds-abdul-el-sayed-has-narrow-edge-over-mike-rogers/">Washington Post, archived</a>). Six points across 45 percent of voters is about 2.7 points overall, most of his gap with Benson.</li>
+<li>The same poll found 48 percent calling El-Sayed "too liberal" for them, against 43 percent calling Rogers "too conservative." The Schar School's Justin Gest put it this way: "It is tempting to attribute El-Sayed's lackluster polling exclusively to Islamophobia, but his socialist endorsements and policy positions are certainly not helping him either."</li>
+</ul>
+<p>Religious bias and ideology overlap in Michigan and can't be separated with the data available. Minnesota is cleaner. Flanagan faced only about $2.6 million in outside opposition (<a href="https://votelog.org/investigations/minnesota-senate-general-money">VoteLog Minnesota</a>) and a first-time candidate, and still ran about 2 points of vote share behind Klobuchar, whose long statewide record explains part of that. Maine is the weakest evidence either way. Jackson became the nominee in late July after Graham Platner withdrew, and he beat Susan Collins, who had won five straight elections. Chait's reply, that Collins is formidable because "she has built a reputation as a moderate," is fair as far as it goes. But Collins was hard for any Democrat to beat, and Jackson beat her.</p>
+
+<h2 id="estimates">Every estimate in one place</h2>
+<p>The chart collects every estimate of the moderate advantage from this page and from published work, before and after 2026.</p>
+{{FIG_FOREST}}
+<p>The pattern is consistent. Older studies found a large moderation premium. Andrew Hall's study of close primaries found that nominating the more extreme candidate cost a party 9 to 13 points of vote share (<a href="https://cambridge.org/core/services/aop-cambridge-core/content/view/ECAC69648AE0DF91D93103E18342B9D2/S0003055414000641a.pdf/what-happens-when-extremists-win-primaries.pdf">Hall 2015</a>). Hall and Daniel Thompson later traced most of that to the other party's voters turning out against the extremist (<a href="https://www.cambridge.org/core/product/366A518712BE9BCC1CB035BF53095D65">Hall and Thompson 2018</a>). Those studies measure vote share over 2006 to 2014, so they aren't on the chart's scale. Recent estimates are far smaller. Split Ticket put the Blue Dog edge at about 5 points for 2018 to 2024 (<a href="https://split-ticket.org/2025/03/17/are-moderates-more-electable/">Split Ticket</a>), Morris at 1 to 1.5 points for 2024, and Bonica and Grumbach at about zero (<a href="https://data4democracy.substack.com/p/do-moderates-do-better">Bonica and Grumbach</a>). The 2026 House numbers sit at the low end of that range. The statewide numbers sit higher.</p>
+<p>Even Chait frames the dispute as being "over how much of an advantage moderates have in winning elections, not which posture is more advantageous." On the evidence here, the answer is a few points, smaller than it used to be, and larger in statewide races than in House races.</p>
+
+<h2 id="primaries">Why progressives rarely win swing-seat primaries</h2>
+<p>If the gap is only a few points, why doesn't the party run progressives everywhere? Several reasons stack up.</p>
+<ul>
+<li><strong>A few points decides close seats.</strong> Primary voters and party groups in swing districts know a marginal seat can turn on 2 or 3 points, and many vote for the candidate they think is safer.</li>
+<li><strong>Swing-seat primary electorates are less left.</strong> Democratic primary voters outside safe blue cities tend to be older and more moderate. That alone favours moderate candidates there, before any money is spent.</li>
+<li><strong>Money and institutions back moderates in swing seats.</strong> The party's campaign committees and allied groups usually pick a candidate in target seats, and outside money follows. In Michigan's Senate primary, outside groups spent about $54 million supporting El-Sayed's rival Haley Stevens (<a href="https://www.pbs.org/newshour/politics/democrat-abdul-el-sayed-wins-election-to-u-s-senate-from-michigan">PBS</a>).</li>
+<li><strong>Progressive groups pick winnable primaries.</strong> Justice Democrats, DSA and similar groups mostly play in safe blue seats where a progressive can win the nomination. Midway through the 2018 primaries, FiveThirtyEight found Justice Democrats and Our Revolution endorsees had won 32 percent of their primaries, against 95 percent for the party committees' picks (<a href="https://fivethirtyeight.com/features/the-establishment-is-beating-the-progressive-wing-in-democratic-primaries-so-far">FiveThirtyEight</a>).</li>
+</ul>
+<p>When progressives did win swing-seat primaries this year, the results fit a small penalty. Villegas won CA-22 by about 36 points in a seat Trump carried. Lawrence had the weakest swing of Michigan's competitive House seats. LaKesha Womack had the smallest swing of North Carolina's five flips. Matt Dunlap lost the open ME-2 by 1.6 points and Justin Pearson lost a redrawn TN-9 by 1.1. El-Sayed, Flanagan and Jackson won their Senate races while trailing comparable Democrats.</p>
+<p>The economic message also converged. Eric Blanc found the word "billionaire" on 25 of 32 Democratic Senate campaign websites in 2026, up from 6 of 32 in 2024 (<a href="https://www.thenation.com/article/politics/midterms-analysis-billionaires/">The Nation</a>). Moderates and progressives both ran on anti-elite economics. Where they still differed was on Medicare for All, ICE, Israel and trans issues.</p>
+
+<h2 id="hasan">What this means for Hasan's argument</h2>
+<p>Hasan is right that raw margin comparisons between states mislead, that opponent quality and money mattered, and that progressives won Republican seats that early takes skipped. He is wrong that the centrist claim is baseless. Its strongest version, that moderates run a few points better seat for seat, holds up statewide and plausibly in the House. Benson and Klobuchar faced the same money, media and state mood on the same ballots as El-Sayed and Flanagan, and still ran ahead.</p>
+<p>The centrist claim overreaches too. Moderates did win most of the flips, but they won them on a wave that lifted everyone. Their edge decided perhaps a handful of seats this year. The fair summary is that moderates have a modest, shrinking advantage. It mattered little in 2026, and it would matter much more in a close year.</p>
+
+<h2 id="data">Data, method and limits</h2>
+<p>Download the data: <a href="data/house_2026.csv">House races (CSV)</a> and <a href="data/statewide_2026.csv">Senate and governor races (CSV)</a>. Each row lists its sources.</p>
+<ul>
+<li><strong>Results</strong> come from AP counts on NBC News pages, collected November 14. They are unofficial. Thirty House seats were under 95 percent counted, mostly in New York City and California, and at least six were uncalled. California's late ballots usually lean Democratic and many progressives sit there, so final results may shift the House numbers slightly toward progressives.</li>
+<li><strong>2024 presidential margins</strong> by district come from <a href="https://www.the-downballot.com/p/the-downballots-calculations-of-presidential">The Downballot's calculations</a> for the 2026 maps, which matters in California, Texas, North Carolina, Missouri, Ohio, Tennessee and Utah, where lines changed.</li>
+<li><strong>Faction flags</strong> come from published endorsement lists and caucus rosters. No complete DSA, Our Revolution or WelcomePAC list exists, so some endorsees are missed, mostly long-shot challengers. Thirty-five nominees carry both flags.</li>
+<li><strong>House models</strong> are ordinary least squares with robust standard errors. Hispanic and college shares come from the 2024 American Community Survey and are only available for the 254 seats in states that kept their maps.</li>
+<li><strong>Statewide coding</strong> uses Sanders and left-group endorsements and positions on Medicare for All, ICE, Israel and trans issues. James Talarico, Jon Ossoff and Sherrod Brown are coded mixed or unclear. Statewide models rest on ten progressive nominees, three of them competitive, so treat them as rough.</li>
+<li><strong>Missing evidence.</strong> No validated-voter or precinct study of 2026 exists yet. Those will separate turnout from persuasion, and certified counts will let these models be rerun.</li>
+</ul>
+
+<h2 id="sources">Sources</h2>
+<ul class="sources">
+<li>Mehdi Hasan, <a href="https://x.com/mehdirhasan/status/2121382704105267425">Zeteo video on X</a>, November 13, 2026</li>
+<li>Jonathan Chait, "The Left's Election Denial," The Atlantic, November 11, 2026 (<a href="https://archive.ph/20261112201741/https://www.theatlantic.com/ideas/2026/11/moderates-midterms-success-progressives/689371/">archived copy</a>)</li>
+<li>Lakshya Jain, <a href="https://www.theargumentmag.com/p/do-moderates-still-have-an-electability">"Do moderates still have an electability advantage?"</a>, The Argument, November 12, 2026</li>
+<li>Center for Working-Class Politics, <a href="https://cwcp.substack.com/p/ideological-endorsements-mostly-didnt">post-election analysis</a>, November 10, 2026</li>
+<li>Aaron Blake, <a href="https://www.cnn.com/2026/11/06/politics/far-left-democrats-midterm-election">CNN analysis</a> with G. Elliott Morris's faction numbers, November 6, 2026</li>
+<li>Third Way, <a href="https://www.thirdway.org/memo/moderates-made-democratic-majorities">"Moderates Made Democratic Majorities"</a></li>
+<li>Adam Bonica, <a href="https://data4democracy.substack.com/p/parties-are-electable-not-candidates">"Parties are electable, not candidates"</a></li>
+<li>Eric Blanc, <a href="https://www.thenation.com/article/politics/midterms-analysis-billionaires/">The Nation</a></li>
+<li>Washington Post and Schar School Michigan poll, September 17, 2026 (<a href="https://archive.ph/20261030013825/https://www.washingtonpost.com/politics/2026/09/17/michigan-senate-race-poll-finds-abdul-el-sayed-has-narrow-edge-over-mike-rogers/">archived copy</a>)</li>
+<li>VoteLog outside spending: <a href="https://votelog.org/investigations/michigan-senate-general-money">Michigan</a>, <a href="https://votelog.org/investigations/north-carolina-senate-general-money">North Carolina</a>, <a href="https://votelog.org/investigations/minnesota-senate-general-money">Minnesota</a></li>
+<li><a href="https://www.brookings.edu/articles/how-democrats-won-big-and-why-2028-remains-an-open-question/">Brookings</a> on the 2026 result; <a href="https://michiganadvance.com/?p=115713">Stateline</a> on turnout and switching; <a href="https://www.ajc.com/news/2026/11/latino-voters-swing-left-in-midterm-elections-lifting-democrats-to-big-wins-in-texas-and-nationwide/">AP via the AJC</a> on Latino voters; <a href="https://www.clickondetroit.com/news/politics/2026/11/04/how-trump-and-republicans-lost-the-2026-midterm-elections-according-to-the-ap-voter-poll/">AP Voter Poll</a></li>
+<li>Andrew Hall, <a href="https://cambridge.org/core/services/aop-cambridge-core/content/view/ECAC69648AE0DF91D93103E18342B9D2/S0003055414000641a.pdf/what-happens-when-extremists-win-primaries.pdf">"What Happens When Extremists Win Primaries?"</a>, APSR 2015; Hall and Thompson, <a href="https://www.cambridge.org/core/product/366A518712BE9BCC1CB035BF53095D65">APSR 2018</a></li>
+<li>Split Ticket, <a href="https://split-ticket.org/2025/03/17/are-moderates-more-electable/">"Are moderates more electable?"</a>, 2025; Bonica and Grumbach, <a href="https://data4democracy.substack.com/p/do-moderates-do-better">"Do moderates do better?"</a></li>
+<li>FiveThirtyEight, <a href="https://fivethirtyeight.com/features/the-establishment-is-beating-the-progressive-wing-in-democratic-primaries-so-far">2018 primary scorecard</a>; <a href="https://www.pbs.org/newshour/politics/democrat-abdul-el-sayed-wins-election-to-u-s-senate-from-michigan">PBS</a> on the Michigan primary</li>
+<li>Results: AP via <a href="https://www.nbcnews.com/politics/2026-elections">NBC News</a> district and state pages; Wikipedia race pages for statewide results; <a href="https://www.the-downballot.com/p/the-downballots-calculations-of-presidential">The Downballot</a> for 2024 results by district</li>
+</ul>
+</main>
+<div id="tip" role="status" aria-live="polite"></div>
+<script>
+(function () {
+  var tip = document.getElementById('tip');
+  function show(el, x, y) {
+    tip.textContent = el.getAttribute('data-tip');
+    tip.style.display = 'block';
+    var w = tip.offsetWidth, h = tip.offsetHeight;
+    var left = Math.min(x + 14, window.innerWidth - w - 8);
+    var top = y + 14 + h > window.innerHeight ? y - h - 10 : y + 14;
+    tip.style.left = Math.max(8, left) + 'px';
+    tip.style.top = Math.max(8, top) + 'px';
+  }
+  function hide() { tip.style.display = 'none'; }
+  document.addEventListener('pointerover', function (e) {
+    var el = e.target.closest('[data-tip]');
+    if (el) show(el, e.clientX, e.clientY);
+  });
+  document.addEventListener('pointermove', function (e) {
+    var el = e.target.closest('[data-tip]');
+    if (el) show(el, e.clientX, e.clientY); else if (e.pointerType === 'mouse') hide();
+  });
+  document.addEventListener('focusin', function (e) {
+    var el = e.target.closest('[data-tip]');
+    if (el) { var r = el.getBoundingClientRect(); show(el, r.right, r.bottom); }
+  });
+  document.addEventListener('focusout', hide);
+  document.addEventListener('scroll', hide, { passive: true });
+
+  var btn = document.getElementById('theme');
+  function current() {
+    var t = document.documentElement.getAttribute('data-theme');
+    if (t) return t;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function label() { btn.textContent = current() === 'dark' ? 'Light mode' : 'Dark mode'; }
+  try { var saved = localStorage.getItem('theme'); if (saved) document.documentElement.setAttribute('data-theme', saved); } catch (e) {}
+  label();
+  btn.addEventListener('click', function () {
+    var next = current() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+    label();
+  });
+})();
+</script>
+</body>
+</html>
