@@ -1,0 +1,69 @@
+---
+import Base, { type TocItem } from '../../layouts/Base.astro';
+import H from '../../components/H.astro';
+import ClaimCard from '../../components/ClaimCard.astro';
+import { CLAIMS } from '../../lib/hasanClaims';
+import { VIDEOS, THEMES, sections, tally, verdictClass } from '../../lib/hasan';
+
+const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + '/';
+const ids = CLAIMS.flatMap((c) => c.ids).length;
+const secId = (video: string, i: number) => `${video}-${i}`;
+const toc: TocItem[] = [
+  { id: 'how', title: 'How to read this page', level: 2 },
+  ...sections.flatMap((s) => [
+    { id: s.video, title: VIDEOS[s.video].title, level: 2 as const },
+    ...s.themes.map((t, i) => ({ id: secId(s.video, i), title: THEMES[t.theme], level: 3 as const })),
+  ]),
+  { id: 'method', title: 'Method and sources', level: 2 },
+];
+const T = (id: string) => toc.find((t) => t.id === id)!.title;
+---
+<Base title="Mehdi Hasan's claims, checked"
+  description="Every checkable claim from Mehdi Hasan's two November 2026 videos on the midterms and Chuck Schumer, with the clip, the verdict and the evidence."
+  toc={toc} heading="Mehdi Hasan's claims, checked">
+<button class="theme" type="button" id="theme">Dark mode</button>
+<p class="crumb"><a href={base}>← Did moderates win the 2026 midterms?</a></p>
+<h1>Mehdi Hasan's claims, checked</h1>
+<p class="dateline">Every checkable claim from two videos Hasan released on November 13, 2026. Checked November 16; results are unofficial and a few races are still counting.</p>
+<p class="made"><strong>How this was made.</strong> An AI agent transcribed both videos, listed every checkable claim, checked each one against the original sources, cut the clips and wrote this page, with a person choosing the questions and fetching pages the agent couldn't reach. A separate AI review checked the verdicts. Each card links to Hasan's original video at that moment and to every source used.</p>
+
+<p>After Democrats' wave on November 3, Mehdi Hasan answered the centrist claim that progressives underperformed with a Zeteo monologue, posted <a href={VIDEOS.zeteo.url}>on X</a> and <a href={VIDEOS.zeteo.alt}>on Zeteo's site</a>, giving eight reasons it was wrong. The same day, on <a href={VIDEOS.fp.url}>Fast Politics with Molly Jong-Fast</a>, he made the case against Chuck Schumer staying on as Senate Democratic leader. This page takes {ids} checkable claims from the two videos, grouped into {CLAIMS.length} cards. The question underneath, whether moderates or progressives drove the wave, is covered with all the data in <a href={base}>the main article</a>.</p>
+
+<div class="answer">
+<p><strong>Short answer.</strong> Most of Hasan's individual facts hold up. He is right about Susan Collins's record, the three-to-one money gap between Michigan and North Carolina, the jump in anti-billionaire campaigning, the cost of Will Lawrence's race, how white Michigan, Minnesota and Maine are, and Fox News's fixation on El-Sayed. The problems are in what he draws from them. His comparison of El-Sayed's 7-point win with Roy Cooper's 19 answers an argument the pundits mostly didn't make: they mostly measured each candidate against the 2024 result or a baseline Democrat. Whiteness explains part of the progressives' gap, not all of it. On Schumer he is right about the primaries, and several of his numbers are off.</p>
+<p class="tally">{tally.map((t, i) => <>{i > 0 && ' · '}<span class={`verdict-inline ${verdictClass(t.verdict)}`}><span class="verdict-mark" aria-hidden="true"></span>{t.verdict} {t.n}</span></>)}</p>
+</div>
+
+<H id="how">{T('how')}</H>
+<p>Each card plays Hasan's words, then gives a verdict, a short explanation and the evidence, with links. The clips are short excerpts for commentary; the "original" link under each one opens the full video, at the right moment where the platform allows it. The verdicts:</p>
+<ul class="verdict-key">
+<li><span class="verdict-inline v-true"><span class="verdict-mark" aria-hidden="true"></span><strong>True</strong></span> and <span class="verdict-inline v-true"><span class="verdict-mark" aria-hidden="true"></span><strong>Mostly true</strong></span>: the facts hold, with at most a small slip.</li>
+<li><span class="verdict-inline v-partly"><span class="verdict-mark" aria-hidden="true"></span><strong>Partly true</strong></span>: part of it holds and part doesn't, or it's overstated.</li>
+<li><span class="verdict-inline v-false"><span class="verdict-mark" aria-hidden="true"></span><strong>Misleading</strong></span>: the facts may be right but the conclusion drawn from them isn't. <strong>False</strong>: the record contradicts it.</li>
+<li><span class="verdict-inline v-other"><span class="verdict-mark" aria-hidden="true"></span><strong>Unsupported</strong></span>: no source could be found. <strong>Opinion</strong>: a judgement, with the facts underneath it noted.</li>
+</ul>
+
+{sections.map((s) => <>
+  <H id={s.video}>{VIDEOS[s.video].title}</H>
+  <p class="video-meta">{VIDEOS[s.video].when} · <a href={VIDEOS[s.video].url}>{s.video === 'fp' ? 'watch on YouTube' : 'watch on X'}</a>{s.video === 'fp' && ' · Hasan appears in the first 21 minutes; Dave Weigel of Semafor follows'}</p>
+  {s.themes.map((t, i) => <>
+    <H id={secId(s.video, i)} level={3}>{THEMES[t.theme]}</H>
+    {t.cards.map((c) => <ClaimCard c={c} base={base} />)}
+  </>)}
+</>)}
+
+<H id="method">{T('method')}</H>
+<ul>
+<li><strong>Transcripts.</strong> Both videos were transcribed locally with Whisper (large-v3). Quotes on this page come from those transcripts, lightly cleaned of "um" and false starts, and the clips let you hear the exact words.</li>
+<li><strong>Which claims.</strong> Every statement about the 2026 elections, the candidates, the money, the media coverage and the party leaders. Hasan's comments on Trump's character, Iran and Trump's first-term record in the opening minutes of Fast Politics are left out. A few pure opinions are folded into the cards they belong to, and one is dropped.</li>
+<li><strong>Sources.</strong> Each claim was checked against the original page, poll, filing or video. When a site blocked automated access, an archived copy was used, or the page was opened in a browser by hand. Search-engine summaries were never used as evidence.</li>
+<li><strong>Data.</strong> Swing, margins and money figures come from the same datasets as <a href={base}>the main article</a>, which are linked from its methods section.</li>
+<li><strong>Clips.</strong> Cut from the published videos as short excerpts for criticism and commentary, with links to the originals.</li>
+</ul>
+<script>
+  // Only one clip plays at a time.
+  document.addEventListener('play', (e) => {
+    document.querySelectorAll('video').forEach((v) => { if (v !== e.target) v.pause(); });
+  }, true);
+</script>
+</Base>

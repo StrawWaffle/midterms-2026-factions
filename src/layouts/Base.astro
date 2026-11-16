@@ -4,8 +4,8 @@ import { VERSION } from '../lib/version';
 import { entities } from '../lib/entities';
 
 export interface TocItem { id: string; title: string; level: 2 | 3 }
-interface Props { title: string; description: string; toc: TocItem[] }
-const { title, description, toc } = Astro.props;
+interface Props { title: string; description: string; toc: TocItem[]; heading?: string }
+const { title, description, toc, heading = 'Did moderates win the 2026 midterms?' } = Astro.props;
 const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : import.meta.env.BASE_URL + '/';
 ---
 <!doctype html>
@@ -26,7 +26,7 @@ const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL :
   <div class="layout">
     <aside class="toc" aria-label="On this page">
       <div class="toc-inner">
-        <a class="toc-top" href="#top">Did moderates win the 2026 midterms?</a>
+        <a class="toc-top" href="#top">{heading}</a>
         <ol>{toc.map((t) => <li class={`toc-h${t.level}`}><a href={`#${t.id}`}>{t.title}</a></li>)}</ol>
       </div>
     </aside>

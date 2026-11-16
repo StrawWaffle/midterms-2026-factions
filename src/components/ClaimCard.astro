@@ -1,0 +1,31 @@
+---
+// One checked claim: the clip, Hasan's words, the verdict, and the evidence behind it.
+import type { Claim } from '../lib/hasanClaims';
+import { VIDEOS, verdictClass, clock } from '../lib/hasan';
+
+interface Props { c: Claim; base: string }
+const { c, base } = Astro.props;
+const v = VIDEOS[c.video];
+const original = c.video === 'fp' ? `${v.url}&t=${Math.floor(c.start)}` : v.url;
+---
+<article class="claim" id={c.slug} data-verdict={c.verdict} data-theme={c.theme}>
+  <div class="claim-media">
+    <video controls preload="none" playsinline poster={`${base}clips/${c.slug}.jpg`} width="640" height="360">
+      <source src={`${base}clips/${c.slug}.mp4`} type="video/mp4" />
+    </video>
+    <p class="claim-src">{v.short}, {clock(c.start)}–{clock(c.end)} · <a href={original}>original{c.video === 'zeteo' ? ` (at ${clock(c.start)})` : ''}</a></p>
+  </div>
+  <div class="claim-body">
+    <blockquote class="claim-quote"><p>{c.quote}</p></blockquote>
+    <p class={`verdict ${verdictClass(c.verdict)}`}><span class="verdict-mark" aria-hidden="true"></span><strong>{c.verdict}.</strong> <span>{c.claim}</span></p>
+    <p set:html={c.summary} />
+    <details class="claim-evidence">
+      <summary>Evidence ({c.evidence.length})</summary>
+      <ul>{c.evidence.map((e) => <li set:html={e} />)}</ul>
+    </details>
+    {c.see && c.see.length > 0 && (
+      <p class="claim-see">In the main article: {c.see.map((s, i) => <>{i > 0 && ', '}<a href={`${base}#${s.anchor}`}>{s.label}</a></>)}</p>
+    )}
+    <p class="claim-tools"><a class="claim-link" href={`#${c.slug}`}>Link to this claim</a></p>
+  </div>
+</article>

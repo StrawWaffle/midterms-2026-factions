@@ -197,3 +197,31 @@ body.has-selbar main { padding-bottom: 96px; }
 @media (max-width: 600px) { .pq { margin-left: 0; margin-right: 0; padding: 12px 14px; } }
 .pq { max-width: 68ch; }
 .pq-pair .pq { max-width: none; }
+
+/* ---- claims page ---- */
+:root { --v-true: #1f7a4d; --v-partly: #9a6200; --v-false: #b3261e; --v-other: #6b6a66; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --v-true: #4fbf86; --v-partly: #e0a33a; --v-false: #ef6b62; --v-other: #a9a89f; } }
+:root[data-theme="dark"] { --v-true: #4fbf86; --v-partly: #e0a33a; --v-false: #ef6b62; --v-other: #a9a89f; }
+.crumb { margin: 0 0 12px; font-size: 14px; }
+.video-meta { color: var(--ink-2); font-size: 14px; margin-top: -4px; }
+.tally { font-size: 14px; margin-top: 10px; }
+.verdict-key { padding-left: 20px; }
+.v-true { --v: var(--v-true); } .v-partly { --v: var(--v-partly); } .v-false { --v: var(--v-false); } .v-other { --v: var(--v-other); }
+.verdict-mark { display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: var(--v); margin-right: 6px; vertical-align: 0; }
+.verdict-inline { white-space: nowrap; }
+.claim { display: grid; grid-template-columns: 1fr; gap: 12px 20px; margin: 20px 0 28px; padding: 16px; background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 8px; scroll-margin-top: 16px; }
+@media (min-width: 900px) { .claim { grid-template-columns: 300px 1fr; } }
+.claim-media video { width: 100%; height: auto; border-radius: 6px; background: #000; display: block; }
+.claim-src { font-size: 13px; color: var(--ink-2); margin: 6px 0 0; }
+.claim-body > * { margin: 0 0 10px; }
+.claim-quote { margin: 0 0 10px; padding: 0 0 0 12px; border-left: 3px solid var(--ink-2); color: var(--ink); }
+.claim-quote p { margin: 0; font-size: 16px; line-height: 1.55; }
+.verdict { padding: 8px 10px; border-left: 4px solid var(--v); background: var(--bg); border-radius: 0 6px 6px 0; }
+.verdict strong { color: var(--v); }
+.claim-evidence summary { cursor: pointer; font-size: 14px; color: var(--ink-2); }
+.claim-evidence ul { padding-left: 20px; margin: 6px 0 0; font-size: 14px; }
+.claim-evidence li { margin: 4px 0; }
+.claim-see, .claim-tools { font-size: 14px; color: var(--ink-2); }
+.claim-tools { margin-bottom: 0 !important; }
+.claim:target { border-color: var(--ink-2); }
