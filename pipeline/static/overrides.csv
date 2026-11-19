@@ -1,3 +1,8 @@
 file,key,column,value,note
 house_money_2026.csv,CA-22,red_to_blue,1,Villegas was added to Red to Blue per the DCCC's own release; the list in dccc_red_to_blue.csv has only the pre-primary pick Jasmeet Bains
 house_money_2026.csv,CA-22,red_to_blue_date,2026-06-10,date of the DCCC release adding Villegas
+statewide_2026.csv,AK Senate,dem_pct,50.29,"Alaska Division of Elections unofficial first-choice totals, 11/18/2026 5:56 PM (Peltola 144,486; Sullivan 131,965; Heikes 6,105; D. Sullivan Jr. 4,765); Wikipedia still had an earlier count. Replace with certified results after Nov 25"
+statewide_2026.csv,AK Senate,rep_pct,45.93,"Alaska Division of Elections unofficial first-choice totals, 11/18/2026 5:56 PM (Peltola 144,486; Sullivan 131,965; Heikes 6,105; D. Sullivan Jr. 4,765); Wikipedia still had an earlier count. Replace with certified results after Nov 25"
+statewide_2026.csv,AK Senate,dem_margin,4.36,"Alaska Division of Elections unofficial first-choice totals, 11/18/2026 5:56 PM (Peltola 144,486; Sullivan 131,965; Heikes 6,105; D. Sullivan Jr. 4,765); Wikipedia still had an earlier count. Replace with certified results after Nov 25"
+statewide_2026.csv,AK Senate,dem_margin_2party,4.53,"Alaska Division of Elections unofficial first-choice totals, 11/18/2026 5:56 PM (Peltola 144,486; Sullivan 131,965; Heikes 6,105; D. Sullivan Jr. 4,765); Wikipedia still had an earlier count. Replace with certified results after Nov 25"
+statewide_2026.csv,AK Senate,swing_vs_2024,17.49,"Alaska Division of Elections unofficial first-choice totals, 11/18/2026 5:56 PM (Peltola 144,486; Sullivan 131,965; Heikes 6,105; D. Sullivan Jr. 4,765); Wikipedia still had an earlier count. Replace with certified results after Nov 25"
